@@ -1,8 +1,37 @@
-# 🎨 APEX UI - COMPLETE REACT APPLICATION
+# APEX App (React Frontend)
 
-## ✅ WHAT YOU HAVE:
+![Frontend](https://img.shields.io/badge/frontend-React%2019-61DAFB) ![Language](https://img.shields.io/badge/language-TypeScript-3178C6) ![UI](https://img.shields.io/badge/ui-Material%20UI%20v7-007FFF) ![Build](https://img.shields.io/badge/build-Vite-646CFF)
 
-A **production-ready React 19 + Material-UI application** with:
+## Executive Summary
+
+APEX App is a React 19 + TypeScript frontend that provides the primary user interface for authentication, dashboarding, change/project workflows, and task execution. It is built with Material UI v7 and Vite, integrates with the ApexAPI backend via configurable API base URL or proxy routing, and is designed to run as part of the monorepo full-stack workflow.
+
+## Audience and Scope
+
+- **Audience:** Frontend developers, UI engineers, and full-stack contributors working on the APEX user experience.
+- **Scope:** Frontend setup, API integration behavior, route-level feature areas, and local verification workflows.
+- **Use this README when:** You are building, running, debugging, or extending the React application.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Monorepo Onboarding (Recommended)](#monorepo-onboarding-recommended)
+- [Installation](#installation)
+- [Proxy Configuration](#proxy-configuration)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
+- [APEX Theme](#apex-theme)
+- [Available Scripts](#available-scripts)
+- [Features](#features)
+- [API Integration](#api-integration)
+- [Troubleshooting](#troubleshooting)
+- [Tech Stack](#tech-stack)
+- [Workflow Verification](#workflow-verification)
+
+## Overview
+
+A React 19 + Material UI application with:
+
 - ✅ Full authentication (login, protected routes, token management)
 - ✅ APEX brand theme (all your colors and typography)
 - ✅ Dashboard with stats and quick actions
@@ -15,16 +44,40 @@ A **production-ready React 19 + Material-UI application** with:
 
 ---
 
-## 📦 INSTALLATION:
+## Monorepo Onboarding (Recommended)
 
-### 1. Extract the archive:
+If you're running the full APEX stack from this repository:
+
+1. Start backend services first from `../ApexAPI`
+2. Set frontend API target in `.env` if needed
+3. Start this UI with `npm run dev`
+
+Example `.env`:
+
 ```bash
-cd /path/to/your/workspace
-tar -xzf apex-ui-complete.tar.gz
-cd apex-ui
+VITE_API_URL=https://acme.localhost:5000/api
+```
+
+You can also validate against localhost API hosts:
+
+```bash
+VITE_API_URL=https://localhost:5000/api
+```
+
+For the full startup checklist and troubleshooting, see the root monorepo guide: `../README.md`.
+
+---
+
+## Installation
+
+### 1. Open the frontend project folder:
+
+```bash
+cd /path/to/Apex/ApexApp
 ```
 
 ### 2. Install dependencies:
+
 ```bash
 npm install
 ```
@@ -32,12 +85,14 @@ npm install
 ### 3. Configure API endpoint (optional):
 
 Create `.env` file:
+
 ```bash
 # Optional - defaults to /api with proxy
 VITE_API_URL=https://acme.localhost:5000/api
 ```
 
 ### 4. Start development server:
+
 ```bash
 npm run dev
 ```
@@ -46,7 +101,7 @@ The app will open at `http://localhost:3000`
 
 ---
 
-## 🎯 PROXY CONFIGURATION:
+## Proxy Configuration
 
 The Vite config includes a proxy to your API:
 
@@ -67,34 +122,38 @@ This means API calls to `/api/*` will be proxied to `https://acme.localhost:5000
 
 ---
 
-## 🧪 TESTING THE APP:
+## Testing
 
 ### 1. Start your ASP.NET API:
+
 ```bash
-cd /path/to/ApexAPI
+cd /path/to/Apex/ApexAPI
 dotnet run --project src/Apex.API.Web --urls "https://acme.localhost:5000"
 ```
 
 ### 2. Start the React UI:
+
 ```bash
-cd /path/to/apex-ui
+cd /path/to/Apex/ApexApp
 npm run dev
 ```
 
 ### 3. Login:
+
 Open browser to `http://localhost:3000`
 
 **Test Credentials:**
+
 - Developer: `developer@acme.com`
 - Admin: `admin2@acme.com`
 - Password: (your test passwords)
 
 ---
 
-## 🗂️ PROJECT STRUCTURE:
+## Project Structure
 
 ```
-apex-ui/
+ApexApp/
 ├── src/
 │   ├── api/                    # API client & endpoints
 │   │   ├── client.ts          # Axios instance with interceptors
@@ -141,7 +200,7 @@ apex-ui/
 
 ---
 
-## 🎨 APEX THEME:
+## APEX Theme
 
 Your brand colors are fully integrated:
 
@@ -158,7 +217,7 @@ Typography:      Arial/Helvetica
 
 ---
 
-## 🚀 AVAILABLE SCRIPTS:
+## Available Scripts
 
 ```bash
 npm run dev      # Start development server
@@ -169,9 +228,10 @@ npm run lint     # Run ESLint
 
 ---
 
-## 📱 FEATURES:
+## Features
 
 ### Authentication:
+
 - ✅ Login with email/password
 - ✅ Token storage in localStorage
 - ✅ Auto-redirect on 401
@@ -179,11 +239,13 @@ npm run lint     # Run ESLint
 - ✅ Role-based UI (admin vs user)
 
 ### Dashboard:
+
 - ✅ Stats cards (tasks, projects, requests)
 - ✅ Quick actions
 - ✅ Recent activity feed
 
 ### Project Requests:
+
 - ✅ Create new request
 - ✅ Submit for approval
 - ✅ Approve/Deny (admin)
@@ -192,12 +254,14 @@ npm run lint     # Run ESLint
 - ✅ Priority chips
 
 ### Projects:
+
 - ✅ List all projects
 - ✅ View project details
 - ✅ Start project
 - ✅ View tasks for project
 
 ### Tasks:
+
 - ✅ Kanban board (4 columns)
 - ✅ Create task
 - ✅ Start task
@@ -206,6 +270,7 @@ npm run lint     # Run ESLint
 - ✅ Blocked tasks with reasons
 
 ### Layout:
+
 - ✅ Responsive sidebar navigation
 - ✅ App bar with user menu
 - ✅ Mobile drawer
@@ -213,34 +278,36 @@ npm run lint     # Run ESLint
 
 ---
 
-## 🔧 API INTEGRATION:
+## API Integration
 
 All API calls are configured and ready:
 
 ```typescript
 // Example: Create ProjectRequest
-import { projectRequestApi } from '@/api/projectRequests';
+import { projectRequestApi } from "@/api/projectRequests";
 
 const create = async () => {
   await projectRequestApi.create({
-    title: 'New Feature',
-    description: 'Build awesome feature',
-    businessJustification: 'Increase revenue',
-    priority: 'High'
+    title: "New Feature",
+    description: "Build awesome feature",
+    businessJustification: "Increase revenue",
+    priority: "High",
   });
 };
 ```
 
 ---
 
-## 🎯 NEXT STEPS:
+## Next Steps
 
 ### Immediate:
+
 1. ✅ Install dependencies: `npm install`
 2. ✅ Start dev server: `npm run dev`
 3. ✅ Login and test the workflow
 
 ### Enhancements (Optional):
+
 - Add department selection in task assignment
 - Add user search/autocomplete
 - Add task time logging modal
@@ -251,6 +318,7 @@ const create = async () => {
 - Add dark mode toggle
 
 ### Production:
+
 ```bash
 # Build for production
 npm run build
@@ -261,27 +329,31 @@ npm run build
 
 ---
 
-## 🐛 TROUBLESHOOTING:
+## Troubleshooting
 
 ### Issue: API calls fail with CORS error
+
 **Solution:** Make sure your ASP.NET API has CORS configured for `http://localhost:3000`
 
 ### Issue: 401 Unauthorized after login
+
 **Solution:** Check token is being stored and sent in Authorization header
 
 ### Issue: Module not found errors
+
 **Solution:** Run `npm install` again
 
 ### Issue: TypeScript errors
+
 **Solution:** Run `npm run build` to see all errors
 
 ---
 
-## 📚 TECH STACK:
+## Tech Stack
 
-- **React 19** - Latest React with new features
+- **React 19** - UI framework
 - **TypeScript** - Type safety
-- **Material-UI v6** - Component library
+- **Material UI v7** - Component library
 - **Vite** - Build tool
 - **React Router v6** - Navigation
 - **Axios** - HTTP client
@@ -289,9 +361,10 @@ npm run build
 
 ---
 
-## ✨ APEX BRANDING:
+## Branding
 
-Everything follows your brand guidelines:
+The UI follows APEX branding guidelines:
+
 - Professional color scheme
 - Clean typography
 - Consistent spacing
@@ -299,9 +372,9 @@ Everything follows your brand guidelines:
 
 ---
 
-## 🎉 YOU'RE READY!
+## Workflow Verification
 
-**Start the app and test the complete workflow:**
+Use this sequence to verify the end-to-end workflow:
 
 1. Login as developer
 2. Create ProjectRequest
@@ -313,4 +386,4 @@ Everything follows your brand guidelines:
 8. Create tasks
 9. Start and complete tasks
 
-**Enjoy your APEX application!** 🚀🏔️
+For full-stack startup, troubleshooting, and smoke tests, see `../README.md`.

@@ -10,9 +10,37 @@
 
 ---
 
-## 🌟 Features
+## Executive Summary
+
+APEX API is a .NET 10 backend designed for multi-tenant SaaS workloads with schema-level tenant isolation, FastEndpoints-based HTTP delivery, and clear separation across Core, UseCases, Infrastructure, and Web layers. The repository includes local Docker-based development support, test projects for multiple test scopes, and a practical monorepo workflow that integrates directly with the React frontend.
+
+## Audience and Scope
+
+- **Audience:** Backend developers, platform engineers, and contributors implementing API, domain, and infrastructure features.
+- **Scope:** API architecture, local development setup, tenant behavior, operational configuration, and backend testing workflows.
+- **Use this README when:** You are building, running, testing, or troubleshooting the backend service.
+
+## Table of Contents
+
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Monorepo Onboarding (Recommended)](#monorepo-onboarding-recommended)
+- [Testing](#testing)
+- [Architecture](#architecture)
+- [Configuration](#configuration)
+- [API Documentation](#api-documentation)
+- [Database](#database)
+- [Development](#development)
+- [Docker](#docker)
+- [Security](#security)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+
+## Features
 
 ### Core Capabilities
+
 - ✅ **Multi-Tenant Architecture** - Schema-per-tenant isolation for complete data separation
 - ✅ **Clean Architecture** - Proper layering with dependency inversion
 - ✅ **Domain-Driven Design** - Rich domain models with business logic encapsulation
@@ -21,6 +49,7 @@
 - ✅ **Automated Provisioning** - Automatic tenant schema creation and configuration
 
 ### Multi-Tenancy
+
 - 🔐 **Data Isolation** - Each tenant gets their own database schema
 - 🌐 **Subdomain Routing** - Automatic tenant resolution from subdomain (e.g., `demo.apex.cloud`)
 - 📊 **Subscription Tiers** - Trial, Starter, Professional, Enterprise
@@ -29,6 +58,7 @@
 - 🔄 **Deployment Modes** - SaaS (multi-tenant) or Self-Hosted (single-tenant)
 
 ### Technical Excellence
+
 - 🏗️ **Repository Pattern** - Clean data access abstraction
 - 🎯 **Value Objects** - Strongly-typed domain primitives
 - 📢 **Domain Events** - Event-driven architecture support
@@ -38,7 +68,7 @@
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Apex.API/
@@ -87,7 +117,7 @@ Apex.API/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -99,32 +129,37 @@ Apex.API/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-org/apex.git
    cd apex
    ```
 
 2. **Set up environment variables**
+
    ```bash
    # Copy example environment file
    cp .env.example .env
-   
+
    # Edit .env and set your values
    nano .env
    ```
 
 3. **Start the database**
+
    ```bash
    docker-compose up -d
    ```
 
 4. **Initialize the database**
+
    ```bash
    # Run the initialization script
    ./scripts/init-database.sh
    ```
 
 5. **Configure local DNS (for subdomain testing)**
+
    ```bash
    sudo nano /etc/hosts
    # Add these lines:
@@ -132,35 +167,60 @@ Apex.API/
    ```
 
 6. **Run the API**
+
    ```bash
    dotnet run --project src/Apex.API.Web --urls "https://localhost:5000"
    ```
 
 7. **Verify it's working**
+
    ```bash
    curl -k https://demo.localhost:5000/api/tenants/current
    ```
 
 8. **Open Swagger UI**
-   
+
    Navigate to: https://localhost:5000/swagger
 
 ---
 
-## 🧪 Testing
+## Monorepo Onboarding (Recommended)
+
+If you're running this backend with the React frontend in this repository:
+
+1. Start infrastructure/services first (if required), such as Docker SQL Server.
+2. Start the API from `ApexAPI`.
+3. Start the frontend from `../ApexApp` with `npm run dev`.
+4. Verify connectivity from the UI and confirm authenticated API calls succeed.
+
+Frontend API target examples (`ApexApp/.env`):
+
+```bash
+VITE_API_URL=https://acme.localhost:5000/api
+VITE_API_URL=https://localhost:5000/api
+```
+
+For the shared startup checklist, troubleshooting, and smoke tests, see the root monorepo guide: `../README.md`.
+
+---
+
+## Testing
 
 ### Run All Tests
+
 ```bash
 dotnet test
 ```
 
 ### Run Specific Test Project
+
 ```bash
 dotnet test tests/Apex.API.UnitTests
 dotnet test tests/Apex.API.IntegrationTests
 ```
 
 ### Test with Coverage
+
 ```bash
 dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 ```
@@ -168,11 +228,13 @@ dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 ### Manual API Testing
 
 #### Get Current Tenant
+
 ```bash
 curl -k https://demo.localhost:5000/api/tenants/current
 ```
 
 **Expected Response:**
+
 ```json
 {
   "tenantId": "3cce6e0a-7628-426f-a31d-aa2c02f46821",
@@ -188,6 +250,7 @@ curl -k https://demo.localhost:5000/api/tenants/current
 ```
 
 #### Create New Tenant
+
 ```bash
 curl -k -X POST https://localhost:5000/api/tenants/signup \
   -H "Content-Type: application/json" \
@@ -201,13 +264,14 @@ curl -k -X POST https://localhost:5000/api/tenants/signup \
 ```
 
 #### Get Tenant by ID
+
 ```bash
 curl -k https://localhost:5000/api/tenants/{tenant-id}
 ```
 
 ---
 
-## 📊 Architecture
+## Architecture
 
 ### Clean Architecture Layers
 
@@ -258,71 +322,73 @@ Core ← Infrastructure ← UseCases ← Web
 
 ✓ Core has ZERO dependencies
 ✓ Infrastructure depends on Core only
-✓ UseCases depends on Core only  
+✓ UseCases depends on Core only
 ✓ Web orchestrates everything
 ```
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
 Create a `.env` file in the root directory (see `.env.example`):
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `ASPNETCORE_ENVIRONMENT` | Environment name | Yes |
-| `ConnectionStrings__DefaultConnection` | Database connection string | Yes |
-| `Deployment__Mode` | SaaS or SelfHosted | Yes |
-| `Deployment__BaseDomain` | Base domain for subdomains | Yes |
-| `SQLSERVER_SA_PASSWORD` | SQL Server SA password | Yes (dev) |
+| Variable                               | Description                | Required  |
+| -------------------------------------- | -------------------------- | --------- |
+| `ASPNETCORE_ENVIRONMENT`               | Environment name           | Yes       |
+| `ConnectionStrings__DefaultConnection` | Database connection string | Yes       |
+| `Deployment__Mode`                     | SaaS or SelfHosted         | Yes       |
+| `Deployment__BaseDomain`               | Base domain for subdomains | Yes       |
+| `SQLSERVER_SA_PASSWORD`                | SQL Server SA password     | Yes (dev) |
 
 ### appsettings.json
 
-The `appsettings.json` files are tracked in git with placeholder values. 
+The `appsettings.json` files are tracked in git with placeholder values.
 **Never commit real secrets!** Use environment variables or Azure Key Vault for production.
 
 See `appsettings.Development.json.example` for the template.
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 ### Tenant Endpoints
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| `GET` | `/api/tenants/current` | Get current tenant from subdomain | ❌ |
-| `GET` | `/api/tenants/{id}` | Get tenant by ID | ❌ |
-| `POST` | `/api/tenants/signup` | Create new tenant (signup) | ❌ |
-| `PUT` | `/api/tenants/{id}` | Update tenant | 🔒 Soon |
-| `DELETE` | `/api/tenants/{id}` | Delete tenant | 🔒 Soon |
+| Method   | Endpoint               | Description                       | Auth    |
+| -------- | ---------------------- | --------------------------------- | ------- |
+| `GET`    | `/api/tenants/current` | Get current tenant from subdomain | ❌      |
+| `GET`    | `/api/tenants/{id}`    | Get tenant by ID                  | ❌      |
+| `POST`   | `/api/tenants/signup`  | Create new tenant (signup)        | ❌      |
+| `PUT`    | `/api/tenants/{id}`    | Update tenant                     | 🔒 Soon |
+| `DELETE` | `/api/tenants/{id}`    | Delete tenant                     | 🔒 Soon |
 
 ### Request Endpoints (Coming Soon)
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| `GET` | `/api/requests` | List all requests | 🔒 |
-| `GET` | `/api/requests/{id}` | Get request by ID | 🔒 |
-| `POST` | `/api/requests` | Create new request | 🔒 |
-| `PUT` | `/api/requests/{id}` | Update request | 🔒 |
-| `DELETE` | `/api/requests/{id}` | Delete request | 🔒 |
+| Method   | Endpoint             | Description        | Auth |
+| -------- | -------------------- | ------------------ | ---- |
+| `GET`    | `/api/requests`      | List all requests  | 🔒   |
+| `GET`    | `/api/requests/{id}` | Get request by ID  | 🔒   |
+| `POST`   | `/api/requests`      | Create new request | 🔒   |
+| `PUT`    | `/api/requests/{id}` | Update request     | 🔒   |
+| `DELETE` | `/api/requests/{id}` | Delete request     | 🔒   |
 
 Full API documentation available at `/swagger` when running the application.
 
 ---
 
-## 🗄️ Database
+## Database
 
 ### Schema Structure
 
 #### Shared Schema (`shared`)
+
 Contains tenant metadata available to all tenants:
 
 - `shared.Tenants` - Tenant information and configuration
 
 #### Tenant Schemas (`tenant_*`)
+
 Each tenant gets their own schema for complete isolation:
 
 - `tenant_demo.Requests` (future)
@@ -346,15 +412,15 @@ dotnet ef database update PreviousMigrationName --project src/Apex.API.Infrastru
 
 The system comes with 3 pre-configured demo tenants:
 
-| Subdomain | Company | Tier | Status | Schema |
-|-----------|---------|------|--------|--------|
-| `demo` | Demo Company | Professional | Active | `tenant_demo` |
-| `test` | Test Company | Starter | Active | `tenant_test` |
-| `acmecorp` | Acme Corporation | Trial | Trial | `tenant_acmecorp` |
+| Subdomain  | Company          | Tier         | Status | Schema            |
+| ---------- | ---------------- | ------------ | ------ | ----------------- |
+| `demo`     | Demo Company     | Professional | Active | `tenant_demo`     |
+| `test`     | Test Company     | Starter      | Active | `tenant_test`     |
+| `acmecorp` | Acme Corporation | Trial        | Trial  | `tenant_acmecorp` |
 
 ---
 
-## 🏗️ Development
+## Development
 
 ### Building
 
@@ -397,7 +463,7 @@ dotnet list package --vulnerable
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ### Development Database
 
@@ -423,7 +489,7 @@ Connection details are configured via environment variables (see `.env.example`)
 
 ---
 
-## 🔐 Security
+## Security
 
 ### Best Practices
 
@@ -438,19 +504,22 @@ Connection details are configured via environment variables (see `.env.example`)
 ### Secrets Management
 
 **Development:**
+
 - Use `.env` file (gitignored)
 - Use User Secrets: `dotnet user-secrets set "Key" "Value"`
 
 **Production:**
+
 - Use Azure Key Vault
 - Use environment variables from hosting platform
 - Use managed identities when possible
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### ✅ Phase 1: Foundation (COMPLETE)
+
 - [x] Clean Architecture setup
 - [x] Multi-tenant infrastructure
 - [x] Schema-per-tenant isolation
@@ -459,6 +528,7 @@ Connection details are configured via environment variables (see `.env.example`)
 - [x] FastEndpoints integration
 
 ### 🚧 Phase 2: Core Features (IN PROGRESS)
+
 - [ ] Fix Mediator configuration
 - [ ] Re-enable domain events
 - [ ] FluentValidation integration
@@ -467,6 +537,7 @@ Connection details are configured via environment variables (see `.env.example`)
 - [ ] Comprehensive logging
 
 ### 📋 Phase 3: Production Ready (PLANNED)
+
 - [ ] Integration tests
 - [ ] Performance optimization
 - [ ] Monitoring & observability
@@ -475,6 +546,7 @@ Connection details are configured via environment variables (see `.env.example`)
 - [ ] Kubernetes deployment
 
 ### 🔮 Phase 4: Advanced Features (FUTURE)
+
 - [ ] Real-time notifications (SignalR)
 - [ ] Background job processing
 - [ ] File storage & management
@@ -484,7 +556,7 @@ Connection details are configured via environment variables (see `.env.example`)
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
@@ -506,19 +578,19 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👥 Authors
+## Authors
 
-- **Pete** - *Initial work* - [GitHub Profile](https://github.com/yourusername)
+- **Pete** - _Initial work_ - [GitHub Profile](https://github.com/yourusername)
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [FastEndpoints](https://fast-endpoints.com/)
 - Powered by [.NET 10](https://dotnet.microsoft.com/)
@@ -529,7 +601,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📧 Support
+## Support
 
 - **Documentation:** [docs/](docs/)
 - **Issues:** [GitHub Issues](https://github.com/your-org/apex/issues)
@@ -537,24 +609,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📊 Project Status
+## Project Status
 
-| Metric | Status |
-|--------|--------|
-| **Build** | ![Passing](https://img.shields.io/badge/build-passing-brightgreen.svg) |
-| **Tests** | ![0 tests](https://img.shields.io/badge/tests-0%20passing-yellow.svg) |
-| **Coverage** | ![0%](https://img.shields.io/badge/coverage-0%25-red.svg) |
-| **Issues** | ![0 open](https://img.shields.io/badge/issues-0%20open-brightgreen.svg) |
-| **PRs** | ![0 open](https://img.shields.io/badge/PRs-0%20open-brightgreen.svg) |
-| **License** | ![MIT](https://img.shields.io/badge/license-MIT-blue.svg) |
+| Metric       | Status                                                                  |
+| ------------ | ----------------------------------------------------------------------- |
+| **Build**    | ![Passing](https://img.shields.io/badge/build-passing-brightgreen.svg)  |
+| **Tests**    | ![0 tests](https://img.shields.io/badge/tests-0%20passing-yellow.svg)   |
+| **Coverage** | ![0%](https://img.shields.io/badge/coverage-0%25-red.svg)               |
+| **Issues**   | ![0 open](https://img.shields.io/badge/issues-0%20open-brightgreen.svg) |
+| **PRs**      | ![0 open](https://img.shields.io/badge/PRs-0%20open-brightgreen.svg)    |
+| **License**  | ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)               |
 
 ---
 
-## 🎯 Current State
+## Current State
 
 **Status:** ✅ Multi-tenant infrastructure working, ready for feature development
 
 **Working:**
+
 - Multi-tenant resolution via subdomain
 - Schema-per-tenant isolation
 - Tenant CRUD operations
@@ -562,12 +635,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Clean Architecture layers
 
 **In Progress:**
+
 - Mediator configuration fixes
 - Domain event dispatching
 - Request aggregate
 - Authentication
 
 **Next Steps:**
+
 1. Fix temporary workarounds (see [Architecture Guide](docs/APEX-Architecture-Guide.md))
 2. Build Request aggregate
 3. Add authentication & authorization
