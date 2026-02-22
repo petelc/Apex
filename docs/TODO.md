@@ -5,99 +5,64 @@
 
 ---
 
-## Priority 1 — Blockers (End-to-End Functionality)
+## Priority 1 — Blockers (End-to-End Functionality) ✅
 
 ### Backend API
 
-- [ ] **Tests: Write domain entity unit tests**
-  All three test projects are empty placeholders. Start with domain aggregate tests (no infrastructure needed) — `ChangeRequest`, `Task`, `Project`, `ProjectRequest`.
-  _Location: `ApexAPI/tests/Apex.API.UnitTests/`_
-
-- [ ] **Tests: Write handler unit tests**
-  Use the existing `NoOpMediator` pattern. Cover the most critical handlers: CreateChangeRequest, ApproveChangeRequest, CompleteTask, ConvertProjectRequestToProject.
-  _Location: `ApexAPI/tests/Apex.API.UnitTests/`_
-
-- [ ] **Tests: Write integration tests for critical API flows**
-  Cover the change request approval workflow and project request conversion end-to-end.
-  _Location: `ApexAPI/tests/Apex.API.IntegrationTests/`_
-
-- [ ] **Delete Change Request endpoint**
-  Frontend calls `DELETE /change-requests/{id}` — no backend endpoint exists.
-  _Location: `ApexAPI/src/Apex.API.Web/Endpoints/ChangeRequests/`_
-
----
+- [x] **Tests: Write domain entity unit tests** — 120 tests (ChangeRequest, Task, Project, ProjectRequest aggregates)
+- [x] **Tests: Write handler unit tests** — 24 handler tests (CreateChangeRequest, ApproveProjectRequest, CompleteTask)
+- [x] **Tests: Write integration tests for critical API flows** — 14 integration tests (ChangeRequest + ProjectRequest workflows, handler→repo→DB roundtrips)
+- [x] **Delete Change Request endpoint** — `DELETE /change-requests/{id}` added, delegates to `CancelChangeRequestCommand`
 
 ### Frontend App
 
-- [ ] **Admin route protection**
-  `/admin/users` and `/admin/departments` are unprotected. Add `hasRole('TenantAdmin')` checks via `ProtectedRoute` or inline redirect.
-  _Location: `ApexApp/src/App.tsx`_
-
-- [ ] **Remove debug `console.log` statements**
-  - `ApexApp/src/pages/Tasks.tsx` line 65
-  - `ApexApp/src/pages/ProjectDetail.tsx` line 85
-  - `ApexApp/src/api/projectRequests.ts` line 20
+- [x] **Admin route protection** — `/admin/users` and `/admin/departments` now require `TenantAdmin` role via `ProtectedRoute`
+- [x] **Remove debug `console.log` statements** — Removed from 7 files (Tasks, ProjectDetail, ProjectRequestDetail, ChangeRequestDetail, TaskAssignmentActions, AssignProjectManagerDialog, projectRequests API)
 
 ---
 
-## Priority 2 — Cleanup (Technical Debt)
+## Priority 2 — Cleanup (Technical Debt) ✅
 
 ### Frontend App
 
-- [ ] **Delete unused backup/variant page files**
-  These are not routed and create confusion:
+- [x] **Delete unused backup/variant page files**
   - `src/pages/Dashboard_Old.tsx`
   - `src/pages/Dashboard_Enhanced.tsx`
   - `src/pages/Login_Dark.tsx`
   - `src/pages/Login_Original.tsx`
   - `src/pages/ProjectDetail-old.tsx`
-  - `src/pages/ChangeRequestsList.tsx` (not in routing)
+  - `src/pages/ChangeRequestsList.tsx`
 
-- [ ] **Delete unused backup layout files**
+- [x] **Delete unused backup layout files**
   - `src/components/layout/AppLayout_Dark.tsx`
   - `src/components/layout/AppLayout_Original.tsx`
 
-- [ ] **Implement or remove Notifications icon**
-  `AppLayout` renders a `NotificationsIcon` with no handler. Either wire it to a notification system or remove it until that feature is built.
+- [ ] **Implement or remove Notifications icon** _(deferred — keeping as placeholder)_
   _Location: `ApexApp/src/components/layout/AppLayout.tsx`_
-
-- [ ] **Resolve `ChangeRequestsList.tsx` page**
-  Exists as a standalone page but is not referenced in routing. Determine if it replaces `ChangeRequests.tsx` or can be deleted.
-
----
 
 ### Backend API
 
-- [ ] **Remove diagnostic/debug endpoints before production**
-  The following endpoints are dev-only and should be removed or gated behind a dev environment check:
-  - `DiagnosticUserLookupEndpoint`
-  - `DiagnosticGetUsersByRoleEndpoint`
-  - `TestUserLookupEndpoint`
-  _Location: `ApexAPI/src/Apex.API.Web/Endpoints/Users/`_
+- [x] **Remove diagnostic/debug endpoints**
+  Deleted `DiagnosticUserLookupEndpoint`, `DiagnosticGetUsersByRoleEndpoint`, `TestUserLookupEndpoint` — all were `AllowAnonymous()` and exposed user data.
 
 ---
 
-## Priority 3 — Features In Progress
+## Priority 3 — Features In Progress ✅
 
 ### Frontend–Backend Integration
 
-- [ ] **Dashboard: Replace mock data with live API**
-  `Dashboard_Enhanced.tsx` and `Dashboard_Old.tsx` use hardcoded stats. The primary `Dashboard.tsx` calls the real API — confirm it's the active route and stat cards are fully wired.
-  _Endpoint: `GET /api/dashboard/stats`_
+- [x] **Dashboard: Replace mock data with live API**
+  `Dashboard.tsx` is the active route, fully wired to `GET /dashboard/stats`. Was already complete.
 
-- [ ] **Change Analytics page: Wire to real API**
-  `ChangeAnalytics.tsx` has 4 chart components. Verify all four report endpoints are connected:
-  - `GET /api/reports/change-metrics`
-  - `GET /api/reports/success-rate`
-  - `GET /api/reports/monthly-trends`
-  - `GET /api/reports/top-affected-systems`
+- [x] **Change Analytics page: Wire to real API**
+  All 4 endpoints wired via `changeRequestApi`. Was already complete.
 
-- [ ] **Profile Picture Upload**
-  `ProfilePictureUpload.tsx` component exists but the backend `POST /users/me/profile-picture` endpoint needs Azure Blob Storage wired up.
-  _Backend location: `ApexAPI/src/Apex.API.Web/Endpoints/Users/UploadProfilePictureEndpoint.cs`_
+- [x] **User Role Manager**
+  `components/admin/UserRoleManager.tsx` wired to all 3 admin role endpoints. Fixed contract mismatch: `assignRole` was sending `{ role }` but backend expects `{ roleName }`. Deleted unused duplicate `pages/admin/UserRoleManager.tsx`.
 
-- [ ] **User Role Manager**
-  `admin/UserRoleManager.tsx` component exists — verify it is correctly routed and wired to `GET /api/admin/roles`, `POST /api/admin/users/{id}/roles`, `DELETE /api/admin/users/{id}/roles/{role}`.
+- [ ] **Profile Picture Upload** _(blocked on infrastructure — deferred to Priority 6)_
+  Backend endpoint functional with local filesystem. Azure Blob Storage wiring deferred until Azure infrastructure is provisioned.
+  _Backend: `ApexAPI/src/Apex.API.Web/Endpoints/Users/UploadProfilePictureEndpoint.cs`_
 
 ---
 
@@ -122,10 +87,10 @@ _(Listed in architecture doc as "Planned — not yet started")_
 - [ ] **In-app notification system** — Wire the `NotificationsIcon` in AppLayout to a notification feed
 - [ ] **SignalR real-time updates** — Live status changes for change requests and tasks
 
-### Audit Trail
+### Audit Trail ✅
 
-- [ ] **Audit trail viewer UI** — Surface the `TaskActivityLog` data already stored in the backend
-- [ ] **Change request history tab** — Timeline of all state transitions with user attribution
+- [x] **Audit trail viewer UI** — Already implemented. `TaskDetail` has a Timeline tab wired to `GET /tasks/{id}/timeline`. Fixed `AllowAnonymous()` security bug — endpoint now requires authenticated roles.
+- [x] **Change request history tab** — Already implemented. `ChangeRequestDetail` has a Timeline tab; `ChangeRequestTimeline.tsx` reconstructs the history from the CR's timestamp fields.
 
 ---
 

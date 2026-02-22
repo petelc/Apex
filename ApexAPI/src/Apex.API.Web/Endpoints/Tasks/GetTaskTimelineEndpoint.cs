@@ -26,7 +26,7 @@ public class GetTaskTimelineEndpoint : EndpointWithoutRequest
     public override void Configure()
     {
         Get("/tasks/{id}/timeline");
-        AllowAnonymous(); // Or add your auth policy
+        Roles("TenantAdmin", "Manager", "Project Manager", "Change Implementer", "Change Manager", "CAB Member", "CAB Manager");
         
         Description(b => b
             .WithTags("Tasks")

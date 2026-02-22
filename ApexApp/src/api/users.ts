@@ -174,7 +174,7 @@ export const userApi = {
      * Assign role to user
      */
     assignRole: async (userId: string, role: string): Promise<void> => {
-      await apiClient.post(`/admin/users/${userId}/roles`, { role });
+      await apiClient.post(`/admin/users/${userId}/roles`, { roleName: role });
     },
 
     /**

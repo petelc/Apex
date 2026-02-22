@@ -46,7 +46,6 @@ export default function UserRoleManager({
       const roles = await userApi.admin.getAllRoles();
       setAvailableRoles(roles);
     } catch (err: any) {
-      console.error('Error loading roles:', err);
       setError('Failed to load available roles');
     } finally {
       setLoading(false);
@@ -74,7 +73,6 @@ export default function UserRoleManager({
         onRolesChanged(newRoles);
       }
     } catch (err: any) {
-      console.error('Error updating role:', err);
       setError(
         err.response?.data?.errors?.join(', ') ||
           `Failed to ${checked ? 'assign' : 'remove'} role`,
