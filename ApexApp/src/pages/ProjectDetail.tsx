@@ -82,7 +82,6 @@ export default function ProjectDetailPage() {
 
     try {
       const data = await tasksApi.getProjectTasks(id);
-      console.log('Tasks API response:', data); // ← Add this to debug
       setTasks(data);
     } catch (err) {
       console.error('Error loading tasks:', err);

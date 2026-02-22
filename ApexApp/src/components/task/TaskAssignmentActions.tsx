@@ -35,8 +35,6 @@ export const TaskAssignmentActions: React.FC<TaskAssignmentActionsProps> = ({
 
   const menuOpen = Boolean(anchorEl);
 
-  console.log('TaskAssignmentActions render for task:', task);
-
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };

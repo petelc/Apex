@@ -3,7 +3,6 @@ import type {
   ProjectRequest,
   CreateProjectRequestRequest,
   UpdateProjectRequestRequest,
-  ProjectRequestListResponse,
 } from '@/types/projectRequest';
 
 /**
@@ -16,8 +15,6 @@ export const projectRequestApi = {
    */
   getAll: async (): Promise<ProjectRequest[]> => {
     const response = await apiClient.get('/project-requests');
-    
-    console.log('API Response for getAll ProjectRequests:', response.data);
     
     // ✅ Handle paginated response with 'items'
     if (response.data && Array.isArray(response.data.items)) {

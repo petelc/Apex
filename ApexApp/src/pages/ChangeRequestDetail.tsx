@@ -89,7 +89,6 @@ export default function ChangeRequestDetailPage() {
           break;
         case 'schedule':
           await changeRequestApi.schedule(id!, data);
-          console.log('Scheduled:', data);
           setSuccessMessage('Change request scheduled!');
           break;
         case 'start':

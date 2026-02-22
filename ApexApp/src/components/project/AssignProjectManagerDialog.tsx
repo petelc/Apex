@@ -57,12 +57,7 @@ export function AssignProjectManagerDialog({
       setLoadingManagers(true);
       setError('');
 
-      console.log('🔍 Loading project managers...');
       const managers = await userApi.getProjectManagers();
-
-      console.log('✅ Loaded project managers:', managers);
-      console.log('📊 Count:', managers.length);
-
       setProjectManagers(managers);
 
       if (managers.length === 0) {
@@ -86,15 +81,7 @@ export function AssignProjectManagerDialog({
       setLoading(true);
       setError('');
 
-      console.log('🚀 Assigning project manager:', {
-        projectId,
-        managerId: selectedManagerId,
-      });
-
       await projectApi.assignProjectManager(projectId, selectedManagerId);
-
-      console.log('✅ Project manager assigned successfully');
-
       onSuccess?.();
       onClose();
     } catch (err) {

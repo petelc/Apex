@@ -69,8 +69,6 @@ export default function ProjectRequestDetailPage() {
     }
   };
 
-  console.log('Request:', request);
-
   const handleActionClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };

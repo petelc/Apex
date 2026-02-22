@@ -62,8 +62,6 @@ export default function TasksPage() {
     }
   };
 
-  console.log('TasksPage render, tasks loaded:', tasks);
-
   const handleCreate = async () => {
     if (!projectId) return;
     try {
