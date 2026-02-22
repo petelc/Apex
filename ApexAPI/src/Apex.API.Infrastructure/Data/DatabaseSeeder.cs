@@ -7,20 +7,28 @@ using Apex.API.Core.ValueObjects;
 namespace Apex.API.Infrastructure.Data;
 
 /// <summary>
-/// Seeds initial data including system roles
+/// Seeds initial data including system roles and the default admin user
 /// </summary>
 public static class DatabaseSeeder
 {
+    // Dev-only seed admin — override via environment variables in production
+    private const string SeedAdminEmail = "admin@acme.com";
+    private const string SeedAdminPassword = "SecureAdminPass123!";
+    private const string SeedAdminFirstName = "System";
+    private const string SeedAdminLastName = "Admin";
+
     public static async Task SeedAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
         var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger("DatabaseSeeder"); // ✅ FIXED
+        var logger = loggerFactory.CreateLogger("DatabaseSeeder");
 
         logger.LogInformation("Starting database seeding...");
 
         await SeedRolesAsync(roleManager, logger);
+        await SeedAdminUserAsync(userManager, logger);
 
         logger.LogInformation("Database seeding completed.");
     }
@@ -69,5 +77,55 @@ public static class DatabaseSeeder
                 logger.LogInformation("Role {RoleName} already exists", roleName);
             }
         }
+    }
+
+    private static async Task SeedAdminUserAsync(UserManager<User> userManager, ILogger logger)
+    {
+        var adminEmail = Environment.GetEnvironmentVariable("SEED_ADMIN_EMAIL") ?? SeedAdminEmail;
+
+        var existing = await userManager.FindByEmailAsync(adminEmail);
+        if (existing != null)
+        {
+            // Ensure TenantAdmin role is assigned even if user already exists
+            if (!await userManager.IsInRoleAsync(existing, Role.SystemRoles.TenantAdmin))
+            {
+                var addResult = await userManager.AddToRoleAsync(existing, Role.SystemRoles.TenantAdmin);
+                if (addResult.Succeeded)
+                    logger.LogInformation("Assigned TenantAdmin role to existing admin user: {Email}", adminEmail);
+                else
+                    logger.LogWarning("Could not assign TenantAdmin role to {Email}: {Errors}",
+                        adminEmail, string.Join(", ", addResult.Errors.Select(e => e.Description)));
+            }
+            else
+            {
+                logger.LogInformation("Admin user already exists with TenantAdmin role: {Email}", adminEmail);
+            }
+            return;
+        }
+
+        var adminPassword = Environment.GetEnvironmentVariable("SEED_ADMIN_PASSWORD") ?? SeedAdminPassword;
+
+        var admin = User.Create(
+            TenantId.From(Guid.Empty),
+            adminEmail,
+            SeedAdminFirstName,
+            SeedAdminLastName,
+            phoneNumber: null,
+            timeZone: null);
+
+        var createResult = await userManager.CreateAsync(admin, adminPassword);
+        if (!createResult.Succeeded)
+        {
+            logger.LogError("Failed to seed admin user: {Errors}",
+                string.Join(", ", createResult.Errors.Select(e => e.Description)));
+            return;
+        }
+
+        var roleResult = await userManager.AddToRoleAsync(admin, Role.SystemRoles.TenantAdmin);
+        if (roleResult.Succeeded)
+            logger.LogInformation("Seeded admin user with TenantAdmin role: {Email}", adminEmail);
+        else
+            logger.LogWarning("Admin user created but TenantAdmin role failed: {Errors}",
+                string.Join(", ", roleResult.Errors.Select(e => e.Description)));
     }
 }

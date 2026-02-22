@@ -33,7 +33,9 @@ x86/
 build/
 bld/
 [Bb]in/
+[Bb]in/Debug/net10.0/
 [Oo]bj/
+[Oo]bj/Debug/net10.0/
 [Oo]ut/
 msbuild.log
 msbuild.err
