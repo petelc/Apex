@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Apex.API.Infrastructure\Apex.API.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Apex.API.UseCases\Apex.API.UseCases.csproj" />
   </ItemGroup>
 
   <ItemGroup>

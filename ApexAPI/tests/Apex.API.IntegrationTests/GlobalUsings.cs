@@ -1,6 +1,9 @@
 ﻿global using Traxs.SharedKernel;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
 global using NSubstitute;
 global using Shouldly;
 global using Xunit;
+global using Apex.API.Core.ValueObjects;
+global using Apex.API.Infrastructure.Data;
