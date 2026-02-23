@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import {
   Button,
-  ButtonGroup,
-  Menu,
-  MenuItem,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -21,7 +18,6 @@ import {
   Done,
   Error,
   Undo,
-  MoreVert,
   Edit,
   Delete,
 } from '@mui/icons-material';
@@ -54,18 +50,11 @@ export const WorkflowActionButtons = ({
   onEdit,
   onDelete,
 }: WorkflowActionButtonsProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<WorkflowAction | null>(null);
   const [dialogData, setDialogData] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const handleMenuClose = () => {};
 
   const handleDialogOpen = (action: WorkflowAction) => {
     setDialogOpen(action);
@@ -314,7 +303,7 @@ export const WorkflowActionButtons = ({
               type="datetime-local"
               fullWidth
               required
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={dialogData.scheduledStartDate || ''}
               onChange={(e) => setDialogData({ ...dialogData, scheduledStartDate: e.target.value })}
             />
@@ -323,7 +312,7 @@ export const WorkflowActionButtons = ({
               type="datetime-local"
               fullWidth
               required
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={dialogData.scheduledEndDate || ''}
               onChange={(e) => setDialogData({ ...dialogData, scheduledEndDate: e.target.value })}
             />

@@ -281,6 +281,35 @@ const tasksApi = {
 
   // Timeline
   getTaskTimeline,
+
+  // Analytics
+  getMetrics: async (startDate?: string, endDate?: string): Promise<TaskMetrics> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const response = await apiClient.get<TaskMetrics>(`/reports/task-metrics?${params}`);
+    return response.data;
+  },
 };
+
+export interface TaskMetrics {
+  totalTasks: number;
+  notStartedTasks: number;
+  inProgressTasks: number;
+  blockedTasks: number;
+  completedTasks: number;
+  cancelledTasks: number;
+  overdueTasks: number;
+  completionRate: number;
+  blockedRate: number;
+  onTimeCompletionRate: number;
+  averageEstimatedHours: number;
+  averageActualHours: number;
+  averageHoursVariance: number;
+  assignedToUserTasks: number;
+  assignedToDepartmentTasks: number;
+  unassignedTasks: number;
+  byPriority: { low: number; medium: number; high: number; urgent: number };
+}
 
 export default tasksApi;

@@ -31,7 +31,7 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setSaving(true);
       setError(null);
@@ -53,6 +53,8 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     }
   };
 
+  const roles = user.roles ?? [];
+
   return (
     <Box component="form" onSubmit={handleSubmit}>
       {error && (
@@ -68,7 +70,7 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
       )}
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="First Name"
@@ -80,7 +82,7 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="Last Name"
@@ -92,7 +94,7 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Email"
@@ -105,7 +107,7 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="Phone Number"
@@ -116,7 +118,7 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="Time Zone"
@@ -141,15 +143,15 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           </TextField>
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Typography variant="subtitle2" gutterBottom>
             Assigned Roles
           </Typography>
           <Stack direction="row" spacing={1} flexWrap="wrap">
-            {user.roles.map((role) => (
+            {roles.map((role) => (
               <Chip key={role} label={role} color="primary" size="small" />
             ))}
-            {user.roles.length === 0 && (
+            {roles.length === 0 && (
               <Typography variant="body2" color="text.secondary">
                 No roles assigned
               </Typography>
@@ -157,7 +159,7 @@ export default function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           </Stack>
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Button
             type="submit"
             variant="contained"

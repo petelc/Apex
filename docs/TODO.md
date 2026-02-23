@@ -78,9 +78,9 @@ _(Listed in architecture doc as "Planned — not yet started")_
 
 ### Advanced Reporting
 
-- [ ] **Project analytics page** — Success rates, timelines, budget tracking
-- [ ] **Task analytics page** — Completion rates by department, overdue trends
-- [ ] **Export to CSV/PDF** — For change request and project reports
+- [x] **Project analytics page** — KPI cards, status breakdown, duration metrics, priority breakdown. Backend: `GET /reports/project-metrics`. Frontend: `/project-analytics` route.
+- [x] **Task analytics page** — KPI cards, status breakdown, time tracking, assignment distribution, priority breakdown. Backend: `GET /reports/task-metrics`. Frontend: `/task-analytics` route.
+- [x] **Export to CSV** — Both analytics pages have CSV export via browser-native Blob download.
 
 ### Notifications
 

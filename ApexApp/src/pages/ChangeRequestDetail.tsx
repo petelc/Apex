@@ -17,7 +17,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { ArrowBack, Edit, Delete } from '@mui/icons-material';
+import { ArrowBack } from '@mui/icons-material';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ChangeRequestStatusBadge } from '@/components/change-requests/ChangeRequestStatusBadge';
 import { PriorityChip, RiskChip } from '@/components/change-requests/PriorityChip';

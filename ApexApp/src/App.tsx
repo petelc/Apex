@@ -19,6 +19,8 @@ import ChangeRequestDetailPage from '@/pages/ChangeRequestDetail';
 import CreateChangeRequestPage from '@/pages/CreateChangeRequest';
 import ChangeRequestEditPage from '@/pages/EditChangeRequest';
 import ChangeAnalyticsPage from '@/pages/ChangeAnalytics';
+import ProjectAnalyticsPage from '@/pages/ProjectAnalytics';
+import TaskAnalyticsPage from '@/pages/TaskAnalytics';
 
 import NotFoundPage from '@/pages/NotFound';
 import EditProjectRequestPage from './pages/EditProjectRequest';
@@ -147,6 +149,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ChangeAnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/project-analytics'
+              element={
+                <ProtectedRoute>
+                  <ProjectAnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/task-analytics'
+              element={
+                <ProtectedRoute>
+                  <TaskAnalyticsPage />
                 </ProtectedRoute>
               }
             />

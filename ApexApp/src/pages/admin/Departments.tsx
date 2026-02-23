@@ -25,7 +25,6 @@ import { departmentApi, type Department } from '@/api/departments';
 import { CreateDepartmentDialog } from '@/components/departments/CreateDepartmentDialog';
 import { EditDepartmentDialog } from '@/components/departments/EditDepartmentDialog';
 import { DeleteDepartmentDialog } from '@/components/departments/DeleteDepartmentDialog';
-import App from '@/App';
 import { AppLayout } from '@/components/layout/AppLayout';
 
 export const Departments: React.FC = () => {

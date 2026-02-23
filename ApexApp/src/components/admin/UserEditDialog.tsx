@@ -42,7 +42,7 @@ export default function UserEditDialog({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [userRoles, setUserRoles] = useState<string[]>(user.roles);
+  const [userRoles, setUserRoles] = useState<string[]>(user.roles ?? []);
 
   // Reset form when user changes
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function UserEditDialog({
       timeZone: user.timeZone || 'America/New_York',
       isActive: user.isActive,
     });
-    setUserRoles(user.roles);
+    setUserRoles(user.roles ?? []);
     setError(null);
     setSuccess(false);
   }, [user]);

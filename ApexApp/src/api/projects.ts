@@ -81,4 +81,32 @@ export const projectApi = {
   cancel: async (id: string, reason: string): Promise<void> => {
     await apiClient.post(`/projects/${id}/cancel`, { reason });
   },
+
+  /**
+   * Get project analytics metrics
+   */
+  getMetrics: async (startDate?: string, endDate?: string): Promise<ProjectMetrics> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const response = await apiClient.get<ProjectMetrics>(`/reports/project-metrics?${params}`);
+    return response.data;
+  },
 };
+
+export interface ProjectMetrics {
+  totalProjects: number;
+  planningProjects: number;
+  activeProjects: number;
+  onHoldProjects: number;
+  completedProjects: number;
+  cancelledProjects: number;
+  overdueProjects: number;
+  completionRate: number;
+  activeRate: number;
+  cancellationRate: number;
+  onTimeCompletionRate: number;
+  averagePlannedDurationDays: number;
+  averageActualDurationDays: number;
+  byPriority: { low: number; medium: number; high: number; urgent: number };
+}

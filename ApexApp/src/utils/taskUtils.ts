@@ -3,7 +3,7 @@
  * Helper functions for task state, validation, and display
  */
 
-import { Task, TaskStatus, TaskPriority } from '../types/task';
+import { Task } from '../types/task';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
 // ============================================

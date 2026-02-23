@@ -70,7 +70,7 @@ export const AssignTaskToUserDialog: React.FC<AssignTaskToUserDialogProps> = ({
       setLoading(true);
       setError(null);
 
-      await tasksApi.assignTaskToUser(task.id, { userId: selectedUserId });
+      await tasksApi.assignTaskToUser(task.id, { assignedToUserId: selectedUserId });
 
       onSuccess();
     } catch (err: any) {
@@ -104,7 +104,7 @@ export const AssignTaskToUserDialog: React.FC<AssignTaskToUserDialogProps> = ({
           <Typography variant='body2' color='text.secondary'>
             Assign task{' '}
             <strong>
-              #{task.taskNumber}: {task.title}
+              {task.title}
             </strong>{' '}
             to a specific user.
           </Typography>

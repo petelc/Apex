@@ -60,7 +60,7 @@ const TaskPriorityBadge: React.FC<TaskPriorityBadgeProps> = ({
       label={TaskPriorityLabels[priority]}
       color={getColor(priority)}
       size={size}
-      icon={showIcon ? getIcon(priority) : undefined}
+      icon={showIcon ? (getIcon(priority) ?? undefined) : undefined}
       sx={{
         fontWeight: 600,
       }}

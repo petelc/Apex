@@ -8,7 +8,6 @@ import { Card, CardContent, Grid, Typography, Stack, Box, Chip } from '@mui/mate
 import {
   CalendarToday as CalendarIcon,
   Schedule as ClockIcon,
-  Person as PersonIcon,
   PlayArrow as StartIcon,
   CheckCircle as CompleteIcon,
   Block as BlockIcon,
@@ -64,8 +63,7 @@ const TaskMetadata: React.FC<TaskMetadataProps> = ({ task }) => {
     label: string,
     fullName?: string,
     email?: string,
-    profileImageUrl?: string,
-    icon?: React.ReactNode
+    profileImageUrl?: string
   ) => {
     if (!fullName && !email) return null;
 
@@ -106,7 +104,7 @@ const TaskMetadata: React.FC<TaskMetadataProps> = ({ task }) => {
 
         <Grid container spacing={3}>
           {/* Dates Section */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={2.5}>
               {renderDateField(
                 'Created',
@@ -153,7 +151,7 @@ const TaskMetadata: React.FC<TaskMetadataProps> = ({ task }) => {
           </Grid>
 
           {/* People Section */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={2.5}>
               {renderUserField(
                 'Created By',

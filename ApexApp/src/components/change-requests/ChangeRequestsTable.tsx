@@ -1,14 +1,11 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataGrid, GridColDef, GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
-import { Box, IconButton, Tooltip, Chip } from '@mui/material';
+import { Box, Tooltip, Chip } from '@mui/material';
 import {
   Visibility,
   Edit,
   Delete,
-  Send,
-  CheckCircle,
-  Cancel as CancelIcon,
 } from '@mui/icons-material';
 import { ChangeRequestStatusBadge } from './ChangeRequestStatusBadge';
 import { PriorityChip, RiskChip } from './PriorityChip';
@@ -18,7 +15,6 @@ import { format } from 'date-fns';
 interface ChangeRequestsTableProps {
   changeRequests: ChangeRequest[];
   loading: boolean;
-  onRefresh: () => void;
   onDelete: (id: string) => void;
 }
 
@@ -28,7 +24,6 @@ interface ChangeRequestsTableProps {
 export const ChangeRequestsTable = ({
   changeRequests,
   loading,
-  onRefresh,
   onDelete,
 }: ChangeRequestsTableProps) => {
   const navigate = useNavigate();

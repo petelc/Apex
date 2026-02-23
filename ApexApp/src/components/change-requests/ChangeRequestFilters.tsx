@@ -16,7 +16,7 @@ import {
   alpha,
   useTheme,
 } from '@mui/material';
-import { Search, FilterList, Clear, ExpandMore, ExpandLess } from '@mui/icons-material';
+import { Search, FilterList, Clear, ExpandLess } from '@mui/icons-material';
 import type {
   ChangeRequestFilters as Filters,
   ChangeRequestStatus,

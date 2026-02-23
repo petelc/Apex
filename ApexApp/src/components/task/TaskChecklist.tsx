@@ -3,21 +3,19 @@
  * Interactive checklist with add/toggle functionality
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Card, 
-  CardContent, 
-  Typography, 
+  Card,
+  CardContent,
+  Typography,
   Box,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Checkbox,
   TextField,
   Button,
-  IconButton,
   Stack,
   CircularProgress,
   Alert,
@@ -43,13 +41,12 @@ interface TaskChecklistProps {
   canEdit: boolean;
 }
 
-const TaskChecklist: React.FC<TaskChecklistProps> = ({ 
-  taskId,
-  items, 
-  onAddItem, 
+const TaskChecklist: React.FC<TaskChecklistProps> = ({
+  items,
+  onAddItem,
   onToggleItem,
   onRefresh,
-  canEdit 
+  canEdit
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newItemDescription, setNewItemDescription] = useState('');

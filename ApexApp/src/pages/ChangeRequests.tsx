@@ -238,7 +238,6 @@ export default function ChangeRequestsPage() {
             <ChangeRequestsTable
               changeRequests={filteredRequests}
               loading={loading}
-              onRefresh={loadChangeRequests}
               onDelete={handleDelete}
             />
           </Card>

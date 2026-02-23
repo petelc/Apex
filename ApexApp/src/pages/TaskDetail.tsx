@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -44,7 +44,6 @@ const TaskDetail: React.FC = () => {
     projectId: string;
     taskId: string;
   }>();
-  const navigate = useNavigate();
 
   // State
   const [task, setTask] = useState<Task | null>(null);

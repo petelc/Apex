@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import {
   Button,
-  ButtonGroup,
-  Menu,
-  MenuItem,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -17,11 +14,9 @@ import {
   CheckCircle,
   Cancel,
   Schedule,
-  PlayArrow,
   Done,
   Error,
   Undo,
-  MoreVert,
   Edit,
 } from '@mui/icons-material';
 import type { ProjectRequest } from '@/types/projectRequest';
@@ -53,18 +48,11 @@ export const ProjectRequestActionButtons = ({
   onEdit,
   onCancel,
 }: ProjectRequestActionButtonsProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<ProjectRequestAction | null>(null);
   const [dialogData, setDialogData] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const handleMenuClose = () => {};
 
   const handleDialogOpen = (action: ProjectRequestAction) => {
     setDialogOpen(action);
@@ -280,7 +268,7 @@ export const ProjectRequestActionButtons = ({
               type="datetime-local"
               fullWidth
               required
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={dialogData.scheduledStartDate || ''}
               onChange={(e) => setDialogData({ ...dialogData, scheduledStartDate: e.target.value })}
             />
@@ -289,7 +277,7 @@ export const ProjectRequestActionButtons = ({
               type="datetime-local"
               fullWidth
               required
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={dialogData.scheduledEndDate || ''}
               onChange={(e) => setDialogData({ ...dialogData, scheduledEndDate: e.target.value })}
             />

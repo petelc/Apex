@@ -17,6 +17,8 @@ export interface User {
   createdDate?: string; // Alias for createdAt
   lastLoginDate?: string;
   profileImageUrl?: string;
+  phoneNumber?: string;
+  timeZone?: string;
 }
 
 /**
@@ -40,7 +42,36 @@ export interface CreateUserRequest {
 export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
+  email?: string;
+  phoneNumber?: string;
+  timeZone?: string;
   isActive: boolean;
+}
+
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  timeZone?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
+export interface AdminCreateUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+  phoneNumber?: string;
+  timeZone?: string;
+  isActive?: boolean;
+  roles?: string[];
 }
 
 export interface AssignDepartmentRequest {
@@ -159,6 +190,21 @@ export const userApi = {
   },
 
   /**
+   * Update the current user's profile
+   */
+  updateCurrentUser: async (data: UpdateProfileRequest): Promise<User> => {
+    const response = await apiClient.put<User>('/users/me', data);
+    return response.data;
+  },
+
+  /**
+   * Change password for the current user
+   */
+  changePassword: async (data: ChangePasswordRequest): Promise<void> => {
+    await apiClient.post('/users/me/change-password', data);
+  },
+
+  /**
    * Admin operations
    */
   admin: {
@@ -167,6 +213,22 @@ export const userApi = {
      */
     getAllRoles: async (): Promise<string[]> => {
       const response = await apiClient.get<string[]>('/admin/roles');
+      return response.data;
+    },
+
+    /**
+     * Create a new user (admin)
+     */
+    createUser: async (data: AdminCreateUserRequest): Promise<User> => {
+      const response = await apiClient.post<User>('/admin/users', data);
+      return response.data;
+    },
+
+    /**
+     * Update a user (admin)
+     */
+    updateUser: async (userId: string, data: UpdateUserRequest): Promise<User> => {
+      const response = await apiClient.put<User>(`/admin/users/${userId}`, data);
       return response.data;
     },
 

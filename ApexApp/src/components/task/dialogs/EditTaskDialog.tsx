@@ -15,9 +15,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Stack,
-  Box,
-  Typography
+  Stack
 } from '@mui/material';
 import { Task, TaskPriority, UpdateTaskRequest } from '../../../types/task';
 import { 
@@ -182,7 +180,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
             onChange={(e) => handleChange('dueDate', e.target.value || undefined)}
             fullWidth
             disabled={loading}
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
         </Stack>
       </DialogContent>

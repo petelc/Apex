@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Chip } from '@mui/material';
-import { TaskStatus, TaskStatusLabels, TaskStatusColors } from '../../types/task';
+import { TaskStatus, TaskStatusLabels } from '../../types/task';
 
 interface TaskStatusBadgeProps {
   status: TaskStatus;

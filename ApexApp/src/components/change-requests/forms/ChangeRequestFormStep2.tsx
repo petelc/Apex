@@ -39,7 +39,7 @@ export const ChangeRequestFormStep2 = ({
       <Stack spacing={3}>
         {/* Priority & Risk Level */}
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="priority"
               control={control}
@@ -60,7 +60,7 @@ export const ChangeRequestFormStep2 = ({
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="riskLevel"
               control={control}
