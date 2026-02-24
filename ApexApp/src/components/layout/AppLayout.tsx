@@ -36,6 +36,7 @@ import {
   ChecklistRtl,
   AdminPanelSettings,
   Person,
+  RocketLaunch,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -99,6 +100,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       text: 'Change Requests',
       icon: <ChecklistRtl />,
       path: '/change-requests',
+    },
+    {
+      text: 'Deployments',
+      icon: <RocketLaunch />,
+      path: '/deployment-requests',
     },
   ];
 

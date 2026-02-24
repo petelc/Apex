@@ -21,6 +21,9 @@ import ChangeRequestEditPage from '@/pages/EditChangeRequest';
 import ChangeAnalyticsPage from '@/pages/ChangeAnalytics';
 import ProjectAnalyticsPage from '@/pages/ProjectAnalytics';
 import TaskAnalyticsPage from '@/pages/TaskAnalytics';
+import DeploymentRequestsPage from '@/pages/DeploymentRequests';
+import DeploymentRequestDetailPage from '@/pages/DeploymentRequestDetail';
+import CreateDeploymentRequestPage from '@/pages/CreateDeploymentRequest';
 
 import NotFoundPage from '@/pages/NotFound';
 import EditProjectRequestPage from './pages/EditProjectRequest';
@@ -173,6 +176,31 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ChangeRequestEditPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Deployment Requests */}
+            <Route
+              path='/deployment-requests'
+              element={
+                <ProtectedRoute>
+                  <DeploymentRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/deployment-requests/create'
+              element={
+                <ProtectedRoute>
+                  <CreateDeploymentRequestPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/deployment-requests/:id'
+              element={
+                <ProtectedRoute>
+                  <DeploymentRequestDetailPage />
                 </ProtectedRoute>
               }
             />
