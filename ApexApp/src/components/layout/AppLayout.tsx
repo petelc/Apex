@@ -41,6 +41,8 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useThemeMode } from '@/contexts/ThemeContext';
+import { useNotifications } from '@/contexts/NotificationContext';
+import { NotificationDrawer } from '@/components/notifications/NotificationDrawer';
 
 const DRAWER_WIDTH = 260;
 
@@ -58,6 +60,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useThemeMode();
+  const { unreadCount, openDrawer } = useNotifications();
 
   // Check if user is TenantAdmin
   const isTenantAdmin = user?.roles?.includes('TenantAdmin') || false;
@@ -316,8 +319,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             {mode === 'dark' ? <LightMode /> : <DarkMode />}
           </IconButton>
 
-          <IconButton color='inherit' sx={{ mr: 1 }}>
-            <Badge badgeContent={3} color='error'>
+          <IconButton color='inherit' sx={{ mr: 1 }} onClick={openDrawer} aria-label='Open notifications'>
+            <Badge badgeContent={unreadCount || undefined} color='error' max={99}>
               <Notifications />
             </Badge>
           </IconButton>
@@ -458,6 +461,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           Logout
         </MenuItem>
       </Menu>
+
+      <NotificationDrawer />
     </Box>
   );
 };

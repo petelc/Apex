@@ -5,6 +5,7 @@ using Apex.API.Infrastructure.Data;
 using Apex.API.Web.Configurations;
 using Hangfire;
 using Apex.API.Web.Infrastructure;
+using Apex.API.Web.Hubs;
 using Apex.API.Infrastructure.Jobs;
 using Apex.Infrastructure.Services;
 using Apex.API.Core.Interfaces;
@@ -57,6 +58,12 @@ builder.Services.AddOptionConfigs(builder.Configuration, startupLogger, builder)
 
 // Add Infrastructure (DbContext, Repositories, MediatR, Identity, JWT, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// SignalR — built into ASP.NET Core, no NuGet package required
+builder.Services.AddSignalR();
+
+// Register the Web-side notification hub adapter (wraps IHubContext<NotificationHub>)
+builder.Services.AddScoped<INotificationHubService, NotificationHubService>();
 
 // Add Authorization services
 builder.Services.AddAuthorization();
@@ -200,6 +207,9 @@ if (hangfireEnabled)
 }
 
 app.MapDefaultEndpoints();
+
+// SignalR hub — clients connect to /hubs/notifications?access_token=<jwt>
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();
 

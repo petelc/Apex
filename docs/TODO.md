@@ -68,13 +68,12 @@
 
 ## Priority 4 — New Features (Planned)
 
-### Deployment Management
-_(Listed in architecture doc as "Planned — not yet started")_
+### Deployment Management ✅
 
-- [ ] **DeploymentRequest aggregate** — Core domain model
-- [ ] **DeploymentRequest use cases** — Create, Submit, Approve, Schedule, Execute, Complete
-- [ ] **DeploymentRequest endpoints** — Full CRUD + workflow
-- [ ] **Deployment Management UI** — List, detail, create form, approval workflow
+- [x] **DeploymentRequest aggregate** — 10-state lifecycle, domain events, value objects (DeploymentRequestId, DeploymentRequestStatus, DeploymentEnvironment)
+- [x] **DeploymentRequest use cases** — Create, List, GetById, Submit, Approve, Reject, Schedule, StartExecution, Complete, MarkFailed, Rollback, Cancel, Delete
+- [x] **DeploymentRequest endpoints** — 13 endpoints, full CRUD + workflow, user name enrichment
+- [x] **Deployment Management UI** — List page, detail page, create form (with project/CR dropdowns), all workflow action buttons
 
 ### Advanced Reporting
 
@@ -82,10 +81,10 @@ _(Listed in architecture doc as "Planned — not yet started")_
 - [x] **Task analytics page** — KPI cards, status breakdown, time tracking, assignment distribution, priority breakdown. Backend: `GET /reports/task-metrics`. Frontend: `/task-analytics` route.
 - [x] **Export to CSV** — Both analytics pages have CSV export via browser-native Blob download.
 
-### Notifications
+### Notifications ✅
 
-- [ ] **In-app notification system** — Wire the `NotificationsIcon` in AppLayout to a notification feed
-- [ ] **SignalR real-time updates** — Live status changes for change requests and tasks
+- [x] **In-app notification system** — `Notification` entity, `INotificationService`, 4 REST endpoints (`GET /notifications`, `GET /notifications/unread-count`, `POST /notifications/{id}/read`, `POST /notifications/read-all`). Bell icon in AppLayout wired to `NotificationDrawer`.
+- [x] **SignalR real-time updates** — `NotificationHub` at `/hubs/notifications`, JWT auth via `access_token` query param. Handles domain events for CR (5), PR (3), DR (5) aggregates. Frontend `NotificationContext` manages the `HubConnection`.
 
 ### Audit Trail ✅
 

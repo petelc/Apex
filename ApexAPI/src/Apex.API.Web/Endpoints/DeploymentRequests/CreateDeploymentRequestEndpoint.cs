@@ -66,7 +66,7 @@ public class CreateDeploymentRequestEndpoint : Endpoint<CreateDeploymentRequestR
         {
             HttpContext.Response.StatusCode = StatusCodes.Status201Created;
             HttpContext.Response.Headers.Location = $"/api/deployment-requests/{result.Value.Value}";
-            await HttpContext.Response.WriteAsJsonAsync(new { id = result.Value.Value }, ct);
+            await HttpContext.Response.WriteAsJsonAsync(new { deploymentRequestId = result.Value.Value }, ct);
         }
         else
         {

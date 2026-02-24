@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -18,6 +18,8 @@ import {
 import { ArrowBack, Save, Send } from '@mui/icons-material';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { deploymentRequestApi } from '@/api/deploymentRequests';
+import { projectApi } from '@/api/projects';
+import { changeRequestApi } from '@/api/changeRequests';
 import { getErrorMessage } from '@/api/client';
 import type {
   CreateDeploymentRequestDto,
@@ -25,6 +27,8 @@ import type {
   RequestPriority,
   RiskLevel,
 } from '@/types/deploymentRequest';
+import type { Project } from '@/types/project';
+import type { ChangeRequest } from '@/types/changeRequest';
 
 const ENVIRONMENTS: DeploymentEnvironment[] = ['Development', 'Staging', 'UAT', 'Production'];
 const PRIORITIES: RequestPriority[] = ['Low', 'Medium', 'High', 'Urgent'];
@@ -70,6 +74,17 @@ export default function CreateDeploymentRequestPage() {
   const [error, setError] = useState('');
   const [form, setForm] = useState<FormValues>(defaultValues);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
+
+  useEffect(() => {
+    Promise.all([projectApi.getAll(), changeRequestApi.getAll()]).then(
+      ([projs, crs]) => {
+        setProjects(projs.filter((p) => p.status !== 'Completed' && p.status !== 'Cancelled'));
+        setChangeRequests(crs.filter((cr) => cr.status !== 'Completed' && cr.status !== 'Cancelled' && cr.status !== 'Denied' && cr.status !== 'RolledBack'));
+      }
+    );
+  }, []);
 
   const handleChange = (field: keyof FormValues, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -369,25 +384,41 @@ export default function CreateDeploymentRequestPage() {
                 {/* Link to Project */}
                 <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
-                    label="Link to Project (Project ID)"
+                    label="Link to Project"
                     fullWidth
-                    placeholder="UUID"
+                    select
                     value={form.projectId}
                     onChange={(e) => handleChange('projectId', e.target.value)}
                     disabled={loading}
-                  />
+                    helperText="Optional — link this deployment to an active project"
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {projects.map((p) => (
+                      <MenuItem key={p.id} value={p.id}>
+                        {p.name} ({p.status})
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
 
                 {/* Link to Change Request */}
                 <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
-                    label="Link to Change Request (Change Request ID)"
+                    label="Link to Change Request"
                     fullWidth
-                    placeholder="UUID"
+                    select
                     value={form.changeRequestId}
                     onChange={(e) => handleChange('changeRequestId', e.target.value)}
                     disabled={loading}
-                  />
+                    helperText="Optional — link this deployment to an open change request"
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {changeRequests.map((cr) => (
+                      <MenuItem key={cr.id} value={cr.id}>
+                        {cr.title} ({cr.status})
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
               </Grid>
             </CardContent>

@@ -12,6 +12,7 @@ using Apex.API.Core.Aggregates.UserAggregate;
 using Apex.API.Infrastructure.Data;
 using Apex.API.Infrastructure.Identity;
 using Apex.API.Infrastructure.Services;
+using Apex.API.Infrastructure.Notifications;
 using Apex.API.UseCases.Common.Interfaces;
 using Apex.API.UseCases.Common.Behaviors;
 using Hangfire;
@@ -112,6 +113,22 @@ public static class DependencyInjection
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                 ClockSkew = TimeSpan.Zero
             };
+
+            // SignalR: read token from query string for hub connections
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) &&
+                        path.StartsWithSegments("/hubs/notifications"))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         // HTTP Context
@@ -142,11 +159,18 @@ public static class DependencyInjection
         // ========================================================================
         services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssembly(typeof(Apex.API.UseCases.Tenants.Create.CreateTenantHandler).Assembly);
+            // Scan both UseCases and Infrastructure assemblies
+            // (Infrastructure has notification + email event handlers)
+            cfg.RegisterServicesFromAssemblies(
+                typeof(Apex.API.UseCases.Tenants.Create.CreateTenantHandler).Assembly,
+                typeof(SignalRNotificationService).Assembly);
 
             // Add validation pipeline behavior
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+
+        // Notification service (INotificationHubService injected from Web layer via DI)
+        services.AddScoped<INotificationService, SignalRNotificationService>();
 
         // ========================================================================
         // FLUENTVALIDATION: Auto-discovers all validators! ✨

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Pages
@@ -35,6 +36,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <NotificationProvider>
         <BrowserRouter
           future={{
             v7_startTransition: true,
@@ -234,6 +236,7 @@ function App() {
             <Route path='*' element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Apex.API.UseCases.DeploymentRequests.GetById;
+using Apex.API.UseCases.Users.Interfaces;
 using Apex.API.Core.ValueObjects;
 
 namespace Apex.API.Web.Endpoints.DeploymentRequests;
@@ -9,10 +10,12 @@ namespace Apex.API.Web.Endpoints.DeploymentRequests;
 public class GetDeploymentRequestEndpoint : EndpointWithoutRequest
 {
     private readonly IMediator _mediator;
+    private readonly IUserLookupService _userLookupService;
 
-    public GetDeploymentRequestEndpoint(IMediator mediator)
+    public GetDeploymentRequestEndpoint(IMediator mediator, IUserLookupService userLookupService)
     {
         _mediator = mediator;
+        _userLookupService = userLookupService;
     }
 
     public override void Configure()
@@ -36,11 +39,7 @@ public class GetDeploymentRequestEndpoint : EndpointWithoutRequest
 
         var result = await _mediator.Send(query, ct);
 
-        if (result.IsSuccess)
-        {
-            await HttpContext.Response.WriteAsJsonAsync(result.Value, ct);
-        }
-        else
+        if (!result.IsSuccess)
         {
             HttpContext.Response.StatusCode = result.Status switch
             {
@@ -49,6 +48,25 @@ public class GetDeploymentRequestEndpoint : EndpointWithoutRequest
                 _ => StatusCodes.Status400BadRequest
             };
             await HttpContext.Response.WriteAsJsonAsync(new { Errors = result.Errors }, ct);
+            return;
         }
+
+        var dto = result.Value;
+
+        // Batch lookup user names at the web layer
+        var userIds = new List<Guid> { dto.CreatedByUserId };
+        if (dto.ApprovedByUserId.HasValue) userIds.Add(dto.ApprovedByUserId.Value);
+
+        var userLookup = await _userLookupService.GetUserSummariesByIdsAsync(userIds, ct);
+
+        var enrichedDto = dto with
+        {
+            CreatedByUserName = userLookup.TryGetValue(dto.CreatedByUserId, out var creator) ? creator.FullName : null,
+            ApprovedByUserName = dto.ApprovedByUserId.HasValue && userLookup.TryGetValue(dto.ApprovedByUserId.Value, out var approver)
+                ? approver.FullName
+                : null
+        };
+
+        await HttpContext.Response.WriteAsJsonAsync(enrichedDto, ct);
     }
 }
