@@ -1,0 +1,84 @@
+---
+title: "User Roles"
+description: "A complete reference for APEX's four system roles and what each can do."
+section: "Getting Started"
+sectionOrder: 1
+order: 3
+---
+
+APEX uses four system roles to control what each user can see and do. Roles are assigned at the tenant level — every user has exactly one role.
+
+## The Four Roles
+
+| Role | Who It's For |
+|------|-------------|
+| **Tenant Admin** | IT managers, team leads — full administrative access |
+| **Manager** | Change managers, project leads — approve changes and projects |
+| **User** | Engineers, analysts — submit and work on changes |
+| **Read Only** | Stakeholders, auditors — view access only |
+
+## Role Capabilities
+
+### Tenant Admin
+
+The highest privilege level. Tenant Admins can do everything a Manager can, plus:
+
+- Manage users (invite, edit, deactivate)
+- Assign and remove roles
+- Create and manage departments
+- Access all admin pages
+
+Every workspace requires at least one Tenant Admin. The first user in a new workspace is automatically assigned this role.
+
+### Manager
+
+Managers are the approval layer in APEX. They can:
+
+- Approve or reject change requests, project requests, and deployment requests
+- Assign project managers to projects
+- View all change requests, projects, and deployments across the tenant
+- Create and edit any entity (change request, project, task, deployment)
+
+Managers **cannot** manage users, roles, or departments.
+
+### User
+
+The standard role for most team members. Users can:
+
+- Submit change requests
+- Create and work on tasks
+- Submit project requests
+- Create and submit deployment requests
+- View change requests and projects they're involved in
+
+Users **cannot** approve anything. Submitted items wait for a Manager or Tenant Admin to review.
+
+### Read Only
+
+Designed for auditors, stakeholders, or executives who need visibility without write access. Read Only users can:
+
+- View all change requests, projects, and deployments
+- View audit trails and timelines
+- Export reports
+
+Read Only users **cannot** create, edit, submit, or approve anything.
+
+## Assigning Roles
+
+Only Tenant Admins can assign roles. To change a user's role:
+
+1. Click your avatar → **User Management**
+2. Find the user and click **Edit**
+3. Select the new role from the dropdown
+4. Click **Save**
+
+Role changes take effect immediately. The user does not need to log out.
+
+## Department Assignment
+
+Users can optionally be assigned to a department. This affects:
+
+- Visibility filtering in some list views
+- Manager assignment (department managers see their team's submissions prominently)
+
+A user's role is independent of their department assignment.

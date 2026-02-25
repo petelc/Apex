@@ -37,8 +37,7 @@
   - `src/components/layout/AppLayout_Dark.tsx`
   - `src/components/layout/AppLayout_Original.tsx`
 
-- [ ] **Implement or remove Notifications icon** _(deferred — keeping as placeholder)_
-  _Location: `ApexApp/src/components/layout/AppLayout.tsx`_
+- [x] **Implement or remove Notifications icon** — Implemented as full notification system with SignalR real-time updates and notification drawer.
 
 ### Backend API
 
@@ -93,20 +92,20 @@
 
 ---
 
-## Priority 5 — Marketing Site (`Apex/`)
+## Priority 5 — Marketing Site (`Apex/`) ✅ (partial)
 
-The homepage is complete. All inner pages are linked but do not exist yet.
+The homepage is complete. Key inner pages are built and deploy as static Next.js pages.
 
-- [ ] `/features` — Feature breakdown page
-- [ ] `/pricing` — Full pricing page (tiers, FAQ, comparison table)
-- [ ] `/contact` — Contact form (wire to email service)
-- [ ] `/about` — Company/team page
-- [ ] `/blog` — Blog index + post template
-- [ ] `/signup` — Signup flow (connects to tenant creation API)
-- [ ] `/security` — Security details page
-- [ ] `/privacy` — Privacy policy
-- [ ] `/terms` — Terms of service
-- [ ] `/docs` — Documentation index
+- [x] `/features` — Full features page: 9 feature deep-dives, integration badges, CTA
+- [x] `/pricing` — Full pricing page: monthly/annual toggle, 3 plan cards, comparison table, FAQ accordion, CTA
+- [x] `/contact` — Contact form: enquiry type selector, 4 contact info cards, simulated submission success state
+- [x] `/about` — Company page: mission, stats, values, team cards, milestone timeline
+- [x] `/signup` — 3-step signup flow: account → workspace → plan selection, password strength meter
+- [x] `/security` — Security page: 6 security pillars, certifications, responsible disclosure
+- [x] `/privacy` — Privacy policy (full, GDPR-compliant, 12 sections)
+- [x] `/terms` — Terms of service (full, 15 sections)
+- [x] `/blog` — Blog index (category filter, featured post, grid, newsletter CTA) + MDX post pages (author card, related posts). 5 sample posts written.
+- [x] `/docs` — Docs index + MDX doc pages with collapsible sidebar, prev/next nav. 7 pages across 4 sections. Powered by `gray-matter` + `next-mdx-remote` + `@tailwindcss/typography`.
 - [ ] **Dashboard screenshot/mockup** — Hero section has a placeholder grid; replace with a real screenshot or polished mockup
 - [ ] **Demo video** — "Watch Demo" button in Hero links nowhere
 - [ ] **Contact form backend** — Wire form submission to email service

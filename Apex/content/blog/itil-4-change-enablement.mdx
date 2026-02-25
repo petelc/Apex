@@ -1,0 +1,113 @@
+---
+title: "ITIL 4 Change Enablement: What Actually Changed"
+date: "2025-12-20"
+author: "Aisha Okonkwo"
+authorRole: "Head of Customer Success"
+authorInitials: "AO"
+authorColor: "from-teal-500 to-cyan-500"
+tags: ["ITIL", "Fundamentals", "Compliance"]
+excerpt: "ITIL 4 renamed 'Change Management' to 'Change Enablement' and made significant philosophical shifts. Here's what that means for your team in practice."
+readTime: 8
+---
+
+If you've been working in IT operations for more than a few years, you grew up with ITIL v3's Change Management practice. When ITIL 4 arrived, it renamed it to **Change Enablement** — and the name change wasn't cosmetic.
+
+This post breaks down what's actually different, what stayed the same, and what it means for how your team operates day-to-day.
+
+## What's the Same
+
+Let's get this out of the way first: the core mechanics of change management haven't changed.
+
+You still need:
+- A change record for every significant change
+- Risk and impact assessment
+- An approval mechanism (still called CAB, though ITIL 4 encourages alternatives)
+- A rollback plan
+- Post-implementation review
+- An audit trail
+
+If your team already does these things well, ITIL 4 doesn't require you to redo anything.
+
+## What Actually Changed
+
+### The Philosophy: From Gatekeeping to Enabling
+
+ITIL v3 was implicitly adversarial. "Change Management" was the control function that slowed things down to prevent incidents. The CAB was a gatekeeping body.
+
+ITIL 4 explicitly reframes this. "Change Enablement" is a function that helps the organisation make changes **as fast as safely possible** — not as safely as possible regardless of speed. The emphasis on value co-creation and agility runs through everything.
+
+In practice, this means your process should be optimised to reduce approval friction for low-risk changes, not to apply uniform process to everything.
+
+### Three Change Types → More Explicit
+
+ITIL 4 retained the three change type model but made the intent clearer:
+
+**Standard changes:** Pre-authorised. Low risk, high frequency, well understood. These should have zero CAB involvement. If you're running every standard change through CAB, you're wasting everyone's time.
+
+**Normal changes:** Need individual assessment. This is where CAB or equivalent review happens. ITIL 4 explicitly allows for virtual approval (async, tooling-based) rather than requiring a meeting.
+
+**Emergency changes:** ITIL 4 puts more emphasis on post-implementation review for emergency changes and making them visible rather than hiding them. Every emergency change should be reviewed at the next CAB and tracked separately in your metrics.
+
+### The Change Authority Model
+
+ITIL v3 implied the CAB was the primary decision body. ITIL 4 introduces the concept of **Change Authority** more explicitly — the right person or group to approve a particular change can vary by change type, risk level, or organisational structure.
+
+For your team, this means you should have defined change authorities for different risk bands:
+
+| Risk Level | Change Authority |
+|-----------|-----------------|
+| Low (score 1–3) | Team lead or automated approval |
+| Medium (score 4–6) | Designated change manager |
+| High (score 7–9) | CAB review |
+| Critical (score 10) | Senior leadership + CAB |
+
+### Emphasis on Value Stream Thinking
+
+ITIL 4 is built around value streams and service value chains. The implication for change enablement is that you should map the entire change lifecycle as a value stream and identify waste — steps that add delay without adding safety.
+
+Common waste candidates:
+- Manual copy-paste of information between systems
+- Required sign-offs from people who never actually reject changes
+- Waiting periods that aren't backed by testing or deployment logic
+
+### Less Prescriptive About CAB
+
+This is probably the most practically significant shift. ITIL 4 doesn't require a weekly CAB meeting. It requires an appropriate review mechanism for each change type. That could be:
+
+- A Slack channel where designated reviewers approve changes
+- An async review process in a tool (like APEX)
+- A standing 15-minute daily meeting instead of a 60-minute weekly one
+- AI-assisted risk scoring with auto-approval below a threshold
+
+The constraint is effectiveness, not format.
+
+## What ITIL 4 Doesn't Solve
+
+ITIL 4 is a framework, not a recipe. It won't tell you:
+
+- How long your change approval SLA should be
+- How many people should be on your CAB
+- What constitutes "high risk" in your environment
+- How to handle the politics of getting departments to file change requests
+
+These are your problems to solve. ITIL 4 gives you better language and conceptual tools to frame them — but the hard work of building a culture of change discipline is still yours.
+
+## Practical Takeaways
+
+If you're on ITIL v3 today and wondering whether to "upgrade," here's what I'd actually recommend:
+
+1. **Stop calling it "Change Management."** Language shapes culture. "Change Enablement" signals to your team that the goal is enabling delivery, not blocking it.
+
+2. **Review your standard change list.** When did you last update it? If standard changes still require CAB review, you've got dead weight in your process.
+
+3. **Define change authorities explicitly.** Who approves what? Write it down. It should be in your tooling, not in someone's head.
+
+4. **Add a post-implementation review habit for emergency changes.** This is the most commonly skipped ITIL 4 recommendation and the one with the highest value.
+
+5. **Measure time-in-queue.** If normal changes are sitting in the queue for more than 48 hours, your approval mechanism has a problem.
+
+None of this requires a certification or a consultancy engagement. It requires honest assessment and the will to simplify.
+
+---
+
+*APEX is built around ITIL 4 principles — configurable change authorities, pre-approved standard changes, and async CAB review. [Learn more about our workflow features](/features).*

@@ -45,6 +45,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { NotificationDrawer } from '@/components/notifications/NotificationDrawer';
 
 const DRAWER_WIDTH = 260;
+const DRAWER_COLLAPSED_WIDTH = 72;
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -116,9 +117,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Logo */}
       <Box
         sx={{
-          p: 3,
+          px: sidebarOpen || isMobile ? 3 : 0,
+          py: 2,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: sidebarOpen || isMobile ? 'flex-start' : 'center',
           gap: 2,
         }}
       >
@@ -197,13 +200,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
 
       {/* User Section */}
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: sidebarOpen || isMobile ? 2 : 0, py: 2 }}>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: sidebarOpen || isMobile ? 'flex-start' : 'center',
             gap: 2,
-            p: 1.5,
+            p: sidebarOpen || isMobile ? 1.5 : 1,
             borderRadius: 2,
             bgcolor: 'rgba(255, 255, 255, 0.05)',
             cursor: 'pointer',
@@ -245,10 +249,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         position='fixed'
         sx={{
           width: {
-            md: sidebarOpen ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%',
+            md: `calc(100% - ${sidebarOpen ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH}px)`,
           },
           ml: {
-            md: sidebarOpen ? `${DRAWER_WIDTH}px` : 0,
+            md: `${sidebarOpen ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH}px`,
           },
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
@@ -343,7 +347,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <Box
         component='nav'
         sx={{
-          width: { md: sidebarOpen ? DRAWER_WIDTH : 0 },
+          width: { md: sidebarOpen ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH },
           flexShrink: { md: 0 },
         }}
       >
@@ -392,7 +396,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           flexGrow: 1,
           p: 3,
           width: {
-            md: sidebarOpen ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%',
+            md: `calc(100% - ${sidebarOpen ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH}px)`,
           },
           mt: 8,
           transition: theme.transitions.create(['width', 'margin'], {

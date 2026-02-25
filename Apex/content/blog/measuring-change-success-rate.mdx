@@ -1,0 +1,102 @@
+---
+title: "The Only 5 Change Management Metrics That Matter"
+date: "2026-01-15"
+author: "Marcus Williams"
+authorRole: "CTO & Co-founder"
+authorInitials: "MW"
+authorColor: "from-purple-500 to-pink-500"
+tags: ["Analytics", "Metrics", "KPIs"]
+excerpt: "Most change management dashboards are full of vanity metrics. Here are the five numbers that actually tell you if your process is working."
+readTime: 5
+---
+
+Change management teams love dashboards. Pie charts showing change type distribution, bar charts of changes by department, trend lines tracking volume. Most of it is noise.
+
+Here are the five metrics that actually matter — and what to do when they trend the wrong way.
+
+## 1. Change Success Rate
+
+**Definition:** % of implemented changes that achieved their intended outcome without causing an unintended incident.
+
+**Why it matters:** This is your north star. Everything else is in service of this number. A declining success rate tells you something in your process is breaking down — whether that's inadequate testing, poor risk assessment, or approvers not reading the change requests.
+
+**Target:** 95%+ for most organisations. World-class teams hit 99%.
+
+**What to do if it's declining:**
+- Review failed changes for patterns (specific teams, change types, time of day)
+- Check whether risk scoring is calibrated correctly
+- Look at rollback plan quality — are they specific and tested?
+
+## 2. Mean Time to Approval (MTTA)
+
+**Definition:** Average time from change request submission to final approval.
+
+**Why it matters:** Change management that's too slow creates pressure to bypass the process. Teams will submit emergency changes to skip the queue, or simply deploy without a change record. MTTA tells you where the bottleneck is.
+
+**Target:** Varies by change type. Standard changes: < 4 hours. Normal changes: < 48 hours.
+
+**What to do if it's high:**
+- Identify which approvers are the bottleneck
+- Check whether changes are being submitted with incomplete information (forcing back-and-forth)
+- Consider async review for the CAB instead of synchronous meetings
+
+## 3. Emergency Change Rate
+
+**Definition:** % of all changes classified as emergency.
+
+**Why it matters:** Emergency changes bypass standard process by design. A small emergency rate (2–5%) is normal. Above 10% is a signal that either the emergency criteria are too loose, or the standard process is too slow and teams are gaming it.
+
+**Target:** < 5% of all changes.
+
+**What to do if it's high:**
+- Audit recent emergency changes — did they meet the actual criteria?
+- If criteria are being gamed: tighten the definition and add a post-hoc review requirement
+- If teams are being forced to use emergency because standard is too slow: fix standard
+
+## 4. Change Failure Rate by Category
+
+**Definition:** Success rate broken down by change category (infrastructure, application, security, etc.) and by risk score.
+
+**Why it matters:** Aggregate success rate hides important patterns. If your infrastructure changes succeed 99% of the time but your application deployments fail 20% of the time, you have a specific problem to solve — not a general one.
+
+**Target:** No single category should be consistently below 90%.
+
+**What to do if a category is underperforming:**
+- Review testing requirements for that category
+- Check whether the risk scoring model accurately captures risk for that type
+- Talk to the teams submitting those changes — often they know exactly what the problem is
+
+## 5. Backlog Age
+
+**Definition:** Average age of pending changes waiting for review or approval.
+
+**Why it matters:** A healthy backlog turns over quickly. Changes waiting more than a week are either blocked on an approver, missing information, or stuck in a poorly designed workflow. Old backlog items often get approved in bulk under time pressure — increasing risk.
+
+**Target:** 80% of pending changes less than 72 hours old.
+
+**What to do if backlog is aging:**
+- Identify which stage changes are stalling at (submission, review, approval, scheduling)
+- Send automated reminders to approvers with pending items
+- Check for changes that are "waiting on submitter" — often forgotten after initial submission
+
+## What Not to Measure
+
+A few things that look like useful metrics but aren't:
+
+**Total change volume.** More changes aren't better or worse. Volume without context is noise.
+
+**Changes by department.** Useful for capacity planning, not quality management.
+
+**CAB attendance rate.** If you're measuring whether people showed up to the meeting, you've already lost.
+
+**Time in CAB meeting.** Optimise for decisions made, not time spent.
+
+## Building Your Dashboard
+
+Start simple. Track success rate and MTTA in a weekly report. Add emergency rate and backlog age once you have baseline data. Category breakdowns come last, when you have enough volume per category to be statistically meaningful.
+
+The goal isn't a beautiful dashboard — it's a process that consistently delivers safe, fast change.
+
+---
+
+*APEX tracks all five of these metrics out of the box. [See the analytics features](/features) or [start a free trial](/signup).*

@@ -1,0 +1,109 @@
+---
+title: "Change Management vs Project Management: Where One Ends and the Other Begins"
+date: "2025-12-05"
+author: "James O'Brien"
+authorRole: "VP of Engineering"
+authorInitials: "JO"
+authorColor: "from-orange-500 to-amber-500"
+tags: ["Fundamentals", "Best Practices"]
+excerpt: "Project managers and change managers often find themselves in the same meetings, working toward overlapping goals, with confusingly similar terminology. Here's how to think about the boundary."
+readTime: 6
+---
+
+Few conversations in IT operations generate more confusion than the one about change management versus project management. Both involve planning. Both involve risk. Both produce deliverables. And in many organisations, the same person does both.
+
+So where does one end and the other begin?
+
+## The Short Answer
+
+**Project management** is about delivering a defined outcome on time and budget — building the thing.
+
+**Change management** is about controlling how that thing gets deployed into a live environment — getting the thing live safely.
+
+They're sequential, not competing. Project management ends when the deliverable is ready. Change management kicks in when it's time to deploy.
+
+## The Longer Answer
+
+In practice, the boundary is blurry — and that's okay. What matters is that both functions are covered, not which team label they sit under.
+
+Let's trace a realistic scenario:
+
+> Your team is migrating a critical internal application from on-premise to Azure. The project runs for three months: design, development, testing. At the end of the project, you have a deployable artefact.
+
+**Project management owned:**
+- Scope definition and stakeholder alignment
+- Sprint planning and task tracking
+- Budget tracking
+- Testing and QA sign-off
+- Stakeholder communication during delivery
+
+**Change management owns from here:**
+- Formally registering the deployment as a change request
+- Risk assessment (what breaks if this goes wrong? how many users affected?)
+- Scheduling (when's the maintenance window? who needs to be on standby?)
+- Approval routing (CAB review given the risk level)
+- Rollback plan documentation
+- Deployment communication to affected users
+- Post-deployment review and incident monitoring
+
+If your project manager is also filing the change request and shepherding it through CAB — that's fine. The function is still happening. What matters is that it's not being skipped.
+
+## Where Teams Go Wrong
+
+### Mistake 1: Treating project completion as deployment approval
+
+"We tested it. We're good." Testing proves the software works. It doesn't prove deployment is safe right now, for this environment, in this change window, given what else is in flight.
+
+A production database maintenance job and your application migration scheduled for the same Saturday night is a recipe for an outage — even if both are individually low-risk.
+
+### Mistake 2: Treating the change request as paperwork
+
+Filing a change request after the fact, with no real risk assessment, just to have a record is change theatre. The value of the process is in the review — catching the problem before it's a production incident.
+
+### Mistake 3: No rollback plan because "we tested it"
+
+Rollback plans are for the 5% of cases where testing didn't catch something. Every deployment needs one. "Restore from backup" is not a rollback plan — it's a disaster recovery plan. Know how long the rollback takes, who executes it, and what the communication plan is.
+
+### Mistake 4: Project management tooling used for change management
+
+Jira is excellent for sprint planning. It's not great for change advisory board review, maintenance window scheduling, or audit trail. These are different workflows with different information requirements. Using the wrong tool means either the tool gets abused into something ugly or the process gets skipped because it's too hard.
+
+## When They Overlap: Release Planning
+
+The highest-friction overlap is release planning. Project management wants to ship when the software is ready. Change management wants to ship during approved change windows.
+
+The resolution is coordination, not conflict. The ideal state is a shared release calendar where:
+
+- Project milestones feed into the change window planning
+- Change windows are known far enough in advance for project timelines to account for them
+- Emergency change process exists for genuine production issues that can't wait
+
+This requires communication between the two functions — which is why some organisations have a single Release Manager role that spans both.
+
+## The Organisational Reality
+
+In small teams, one person wears both hats. That's fine as long as the person understands both functions and doesn't let project deadline pressure shortcut the change process.
+
+In larger organisations, they're separate. The handoff point is typically when a project reaches "ready for production deployment" — the project team hands a fully-documented change request to the change management function.
+
+What makes the handoff work is a clear, shared definition of what "ready" means. At a minimum:
+
+- Testing complete and signed off
+- Rollback procedure documented
+- Deployment steps documented with times
+- Stakeholders notified
+- Change window confirmed
+
+If all of that is in the change request when it arrives for CAB review, the process runs smoothly. If the change manager has to chase any of it, you have a process gap.
+
+## The Bottom Line
+
+Change management and project management are complementary, not competing. Project management gets you to ready-to-deploy. Change management gets you from ready-to-deploy to live-in-production safely.
+
+Both matter. Organisations that only do project management skip the safety layer. Organisations that bury project teams in change process slow delivery unnecessarily.
+
+The goal is the right amount of each.
+
+---
+
+*APEX lets you link change requests directly to projects, so the handoff from project delivery to change deployment is automatic. [See how it works](/features).*

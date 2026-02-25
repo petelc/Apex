@@ -1,0 +1,60 @@
+---
+title: "Project Request Workflow"
+description: "How to propose, approve, and manage projects in APEX."
+section: "Workflows"
+sectionOrder: 2
+order: 2
+---
+
+Project requests are how new projects get formally proposed and approved in APEX. Once a project request is approved, a project is automatically created and assigned to a project manager.
+
+## Lifecycle
+
+```
+Draft → Submitted → Approved → Active → Completed
+                 ↓
+              Rejected
+```
+
+## Creating a Project Request
+
+Any user can create a project request.
+
+**Required fields:**
+- **Title** — project name
+- **Description** — what the project delivers and why it's needed
+- **Justification** — business case (cost savings, risk reduction, revenue opportunity)
+- **Estimated Start Date**
+- **Estimated End Date**
+
+**Optional fields:**
+- Budget estimate
+- Priority (Low, Medium, High, Critical)
+- Linked department
+
+## Approval
+
+Managers and Tenant Admins review and approve or reject project requests.
+
+On approval:
+- A **Project** is automatically created
+- The approver can immediately assign a Project Manager
+- The requester is notified
+
+On rejection:
+- The requester receives the rejection reason
+- They can revise and resubmit
+
+## From Project Request to Project
+
+Once a project request is approved, work happens in the **Project** entity. The project has its own lifecycle:
+
+```
+Planning → Active → On Hold → Completed
+```
+
+Projects contain:
+- **Tasks** — individual work items assigned to team members
+- **Change Requests** — linked changes associated with the project
+- **Deployment Requests** — deployments delivering project outcomes
+- **Timeline** — full audit trail of status changes

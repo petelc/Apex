@@ -1,0 +1,110 @@
+---
+title: "Change Request Workflow"
+description: "A complete reference for the change request lifecycle in APEX."
+section: "Workflows"
+sectionOrder: 2
+order: 1
+---
+
+Change requests are the core entity in APEX. This page covers the full lifecycle — every state, every transition, and who can trigger each action.
+
+## Lifecycle Overview
+
+```
+Draft → Submitted → Under Review → Approved → Scheduled → In Progress → Completed
+                                ↓                                        ↑
+                             Rejected                               Rolled Back
+```
+
+At any point before `Completed`, a change request can also be **Cancelled**.
+
+## States
+
+| State | Meaning |
+|-------|---------|
+| `Draft` | Created but not submitted. Only the creator can see it. |
+| `Submitted` | Awaiting review. Visible to Managers and Tenant Admins. |
+| `Under Review` | A Manager has started reviewing. |
+| `Approved` | Approved and ready to be scheduled or implemented. |
+| `Rejected` | Rejected by a Manager. Submitter is notified with a reason. |
+| `Scheduled` | Approved and scheduled for a specific date/time. |
+| `In Progress` | Implementation is underway. |
+| `Completed` | Successfully implemented. No further transitions. |
+| `Cancelled` | Cancelled before completion. No further transitions. |
+| `Rolled Back` | Implemented but subsequently reversed. |
+
+## Creating a Change Request
+
+Any user with the `User`, `Manager`, or `Tenant Admin` role can create a change request.
+
+**Required fields:**
+- **Title** — concise summary (max 200 characters)
+- **Description** — what is being changed and why
+- **Risk Level** — Low, Medium, or High
+- **Rollback Plan** — how to revert the change if needed
+
+**Optional fields:**
+- Scheduled date and time
+- Linked project
+- Attachments
+- Tags
+
+A newly created change request starts in `Draft` status.
+
+## Submitting for Review
+
+Click **Submit for Review** to move from `Draft` → `Submitted`.
+
+Once submitted, the change request is locked for editing. If changes are required, a Manager can reject it back, and the submitter can create a revised version.
+
+Submitting triggers:
+- Email notification to all Managers and Tenant Admins
+- In-app notification (real-time via SignalR) to all Managers and Tenant Admins
+
+## Approval
+
+Managers and Tenant Admins can **Approve** or **Reject** a submitted change request.
+
+### Approving
+
+Click **Approve** on the change request detail page. The status moves to `Approved`. The submitter is notified immediately.
+
+### Rejecting
+
+Click **Reject** and provide a rejection reason. The submitter receives the reason in their notification and email. They can create a new change request addressing the feedback.
+
+## Scheduling
+
+An approved change request can be scheduled for a specific deployment time.
+
+1. Click **Schedule**
+2. Select the date and time
+3. Click **Confirm Schedule**
+
+Status moves to `Scheduled`. All relevant parties are notified.
+
+## Implementation
+
+When work begins, click **Start Implementation**. Status moves to `In Progress`.
+
+When implementation is complete, click **Mark as Completed**. Status moves to `Completed`.
+
+## Rollback
+
+If a completed change needs to be reversed, click **Rollback**. Status moves to `Rolled Back`. Document what was reversed in the rollback notes field.
+
+Rolled back changes remain in the audit trail. The rollback is recorded with a timestamp and the user who initiated it.
+
+## Cancellation
+
+Any non-terminal change request (anything except `Completed`, `Cancelled`, or `Rolled Back`) can be cancelled. Only the creator, a Manager, or a Tenant Admin can cancel.
+
+## Audit Trail
+
+Every state transition is recorded in the change request's timeline. The timeline shows:
+
+- Who triggered each transition
+- When it happened
+- Any notes or reasons provided
+
+The audit trail is immutable and cannot be edited or deleted.

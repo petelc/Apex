@@ -1,0 +1,76 @@
+---
+title: "Deployment Requests"
+description: "Track deployments to specific environments and link them to approved change requests."
+section: "Deployments"
+sectionOrder: 3
+order: 1
+---
+
+A **Deployment Request** in APEX tracks the act of deploying a change to a specific environment. It gives you a formal record separate from the change request — because a single approved change might involve multiple deployments (Dev → Staging → Production).
+
+## Lifecycle
+
+```
+Draft → Submitted → Approved → Scheduled → In Execution → Deployed
+                 ↓                                          ↑
+              Rejected                                  Failed → Rolled Back
+```
+
+Deployments can also be **Cancelled** at any point before `Deployed`.
+
+## States
+
+| State | Meaning |
+|-------|---------|
+| `Draft` | Not yet submitted for approval |
+| `Submitted` | Awaiting Manager approval |
+| `Approved` | Approved and ready to schedule |
+| `Rejected` | Rejected — submitter notified with reason |
+| `Scheduled` | Approved and scheduled for a specific time |
+| `In Execution` | Deployment actively in progress |
+| `Deployed` | Successfully deployed |
+| `Failed` | Deployment failed — rollback may follow |
+| `Rolled Back` | Deployment was rolled back after failure or decision |
+| `Cancelled` | Cancelled before execution |
+
+## Creating a Deployment Request
+
+Any user can create a deployment request. Fill in:
+
+- **Title** — e.g. "Deploy v2.4.1 to Production"
+- **Environment** — Development, Staging, or Production
+- **Linked Change Request** — the approved CR authorising this deployment (required for production)
+- **Linked Project** — optional project association
+- **Scheduled Date** — target deployment date/time
+- **Rollback Plan** — how to undo this deployment
+
+## The Approval Flow
+
+For Production deployments, a Manager or Tenant Admin must approve before execution begins.
+
+For Development and Staging environments, your organisation may configure a lighter approval requirement — or auto-approve at the Manager level.
+
+## Linking to Change Requests
+
+Best practice: every production deployment should be linked to an approved change request. This creates a traceable chain:
+
+> **Change Request** (approved) → **Deployment Request** (executed) → **Production**
+
+On the change request detail page, you can see all linked deployment requests and their outcomes.
+
+## Tracking Execution
+
+When a deployment begins, click **Start Execution** to move to `In Execution`. When done, click:
+
+- **Mark as Deployed** — success
+- **Mark as Failed** — record the failure; you can then initiate rollback
+
+## Rollback
+
+If a deployed change needs reversal:
+
+1. Click **Rollback** on the deployment detail
+2. Enter rollback notes (what was reversed, how)
+3. Confirm
+
+Status moves to `Rolled Back`. The rollback is recorded in the audit trail with timestamp and actor.

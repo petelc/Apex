@@ -1,0 +1,112 @@
+---
+title: "API Authentication"
+description: "How to authenticate with the APEX REST API using JWT tokens."
+section: "API Reference"
+sectionOrder: 4
+order: 1
+---
+
+The APEX API uses **JWT bearer tokens** for authentication. All API routes require a valid token except the authentication endpoints themselves.
+
+## Base URL
+
+```
+https://api.apex.io
+```
+
+During development with a local instance:
+
+```
+https://acme.localhost:5000
+```
+
+All routes are prefixed with `/api`. Example: `GET /api/change-requests`.
+
+## Getting a Token
+
+### Login
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@company.com",
+  "password": "your-password"
+}
+```
+
+**Response:**
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2g...",
+  "expiresIn": 900,
+  "user": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "email": "user@company.com",
+    "firstName": "Sarah",
+    "lastName": "Chen",
+    "roles": ["Manager"]
+  }
+}
+```
+
+- **`accessToken`** — valid for 15 minutes. Include in the `Authorization` header.
+- **`refreshToken`** — valid for 7 days. Use to get a new access token without re-authenticating.
+
+## Using the Token
+
+Include the access token in the `Authorization` header on every request:
+
+```http
+GET /api/change-requests
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+```
+
+## Refreshing Tokens
+
+When the access token expires, use the refresh token to get a new one:
+
+```http
+POST /api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2g..."
+}
+```
+
+**Response:** Same shape as the login response with new tokens.
+
+> Refresh tokens rotate on every use. Store the new refresh token returned in each response.
+
+## SignalR (Real-Time Notifications)
+
+The SignalR hub at `/hubs/notifications` requires the access token passed as a query parameter (WebSocket connections can't set headers):
+
+```
+wss://api.apex.io/hubs/notifications?access_token=eyJhbGciOiJIUzI1NiIs...
+```
+
+## Error Responses
+
+| Status | Meaning |
+|--------|---------|
+| `401 Unauthorized` | Token missing, invalid, or expired |
+| `403 Forbidden` | Token valid but role doesn't permit this action |
+
+On `401`, attempt a token refresh. If the refresh also fails, redirect to login.
+
+## Rate Limiting
+
+The API applies rate limiting at the tenant level:
+
+| Tier | Limit |
+|------|-------|
+| Starter | 60 requests / minute |
+| Professional | 300 requests / minute |
+| Enterprise | Custom (contact support) |
+
+Exceeded limits return `429 Too Many Requests` with a `Retry-After` header.
