@@ -12,13 +12,11 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import { usersApi } from '@/api/users';
 import type { User } from '@/api/users';
 import UserListTable from '@/components/admin/UserListTable';
 import UserEditDialog from '@/components/admin/UserEditDialog';
 import CreateUserDialog from '@/components/admin/CreateUserDialog';
-import ManageRolesDialog from '@/components/admin/ManageRolesDialog';
 import { AssignUserToDepartmentDialog } from '@/components/user/AssignUserToDepartmentDialog';
 import { AppLayout } from '@/components/layout/AppLayout';
 
@@ -34,7 +32,6 @@ export default function UserManagement() {
   const [assignDepartmentDialogOpen, setAssignDepartmentDialogOpen] =
     useState(false);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
-  const [manageRolesOpen, setManageRolesOpen] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -145,22 +142,13 @@ export default function UserManagement() {
           }}
         >
           <Typography variant='h4'>User Management</Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              variant='outlined'
-              startIcon={<ManageAccountsIcon />}
-              onClick={() => setManageRolesOpen(true)}
-            >
-              Manage Roles
-            </Button>
-            <Button
-              variant='contained'
-              startIcon={<AddIcon />}
-              onClick={() => setCreateDialogOpen(true)}
-            >
-              Create User
-            </Button>
-          </Box>
+          <Button
+            variant='contained'
+            startIcon={<AddIcon />}
+            onClick={() => setCreateDialogOpen(true)}
+          >
+            Create User
+          </Button>
         </Box>
 
         {error && (
@@ -220,13 +208,6 @@ export default function UserManagement() {
           />
         )}
 
-        <ManageRolesDialog
-          open={manageRolesOpen}
-          onClose={() => {
-            setManageRolesOpen(false);
-            loadRoles(); // Refresh role list after managing roles
-          }}
-        />
       </Box>
     </AppLayout>
   );

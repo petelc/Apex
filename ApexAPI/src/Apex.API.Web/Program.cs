@@ -7,7 +7,6 @@ using Hangfire;
 using Apex.API.Web.Infrastructure;
 using Apex.API.Web.Hubs;
 using Apex.API.Infrastructure.Jobs;
-using Apex.Infrastructure.Services;
 using Apex.API.Core.Interfaces;
 using Apex.API.UseCases.Users.Interfaces;
 using Apex.API.Infrastructure.Services;
@@ -98,11 +97,6 @@ builder.Services.AddFastEndpoints()
             };
         };
     });
-
-// Register email service
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings"));
-builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add Memory Cache (if not already added)
 builder.Services.AddMemoryCache();

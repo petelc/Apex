@@ -31,7 +31,7 @@ public class CreateDepartmentEndpoint : Endpoint<CreateDepartmentRequest, Create
     public override void Configure()
     {
         Post("/departments");
-        Roles("TenantAdmin", "Administrator");
+        Roles("TenantAdmin");
         Summary(s =>
         {
             s.Summary = "Create a new department";

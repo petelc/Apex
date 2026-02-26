@@ -47,7 +47,7 @@ public class Role : IdentityRole<Guid>
     }
 
     /// <summary>
-    /// Predefined system roles
+    /// Predefined system roles — control endpoint-level access
     /// </summary>
     public static class SystemRoles
     {
@@ -55,5 +55,18 @@ public class Role : IdentityRole<Guid>
         public const string User = "User";
         public const string Manager = "Manager";
         public const string ReadOnly = "ReadOnly";
+    }
+
+    /// <summary>
+    /// Business/functional roles — used for ITIL workflow assignments and notifications
+    /// </summary>
+    public static class BusinessRoles
+    {
+        public const string ChangeManager = "Change Manager";
+        public const string CabMember = "CAB Member";
+        public const string CabManager = "CAB Manager";
+        public const string ChangeImplementer = "Change Implementer";
+        public const string ProjectManager = "Project Manager";
+        public const string Developer = "Developer";
     }
 }

@@ -15,6 +15,6 @@ public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
 
         // In production, check if user is authenticated and has admin role
         return httpContext.User.Identity?.IsAuthenticated == true &&
-               httpContext.User.IsInRole("Administrator");
+               httpContext.User.IsInRole("TenantAdmin");
     }
 }

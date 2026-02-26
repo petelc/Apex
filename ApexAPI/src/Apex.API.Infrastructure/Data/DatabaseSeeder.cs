@@ -35,13 +35,21 @@ public static class DatabaseSeeder
 
     private static async Task SeedRolesAsync(RoleManager<Role> roleManager, ILogger logger)
     {
-        // System roles to seed
+        // All roles to seed: system roles (control access) + business roles (ITIL workflow)
         var systemRoles = new[]
         {
+            // System roles — map to endpoint-level authorization
             (Role.SystemRoles.TenantAdmin, "Administrator with full access to tenant", true),
-            (Role.SystemRoles.User, "Standard user with basic access", true),
             (Role.SystemRoles.Manager, "Manager with elevated privileges", true),
-            (Role.SystemRoles.ReadOnly, "Read-only access user", true)
+            (Role.SystemRoles.User, "Standard user with basic access", true),
+            (Role.SystemRoles.ReadOnly, "Read-only access user", true),
+            // Business/functional roles — used for ITIL assignments and notifications
+            (Role.BusinessRoles.ChangeManager, "Owns the change management process", false),
+            (Role.BusinessRoles.CabMember, "Participates in Change Advisory Board reviews", false),
+            (Role.BusinessRoles.CabManager, "Chairs the Change Advisory Board", false),
+            (Role.BusinessRoles.ChangeImplementer, "Executes approved change implementations", false),
+            (Role.BusinessRoles.ProjectManager, "Manages project delivery and timelines", false),
+            (Role.BusinessRoles.Developer, "Implements technical work on projects and tasks", false),
         };
 
         foreach (var (roleName, description, isSystemRole) in systemRoles)

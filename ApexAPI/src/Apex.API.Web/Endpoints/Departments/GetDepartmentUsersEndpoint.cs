@@ -31,7 +31,7 @@ public class GetDepartmentUsersEndpoint : EndpointWithoutRequest
     public override void Configure()
     {
         Get("/departments/{id}/users");
-        Roles("TenantAdmin", "Administrator", "Manager");
+        Roles("TenantAdmin", "Manager");
         Summary(s =>
         {
             s.Summary = "Get users in a department";

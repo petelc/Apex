@@ -23,7 +23,7 @@ public class AssignDepartmentToUserEndpoint : Endpoint<AssignDepartmentRequest>
     public override void Configure()
     {
         Post("/users/{userId}/assign-department");
-        Roles("TenantAdmin", "Administrator", "Manager");
+        Roles("TenantAdmin", "Manager");
         Summary(s =>
         {
             s.Summary = "Assign department to user";

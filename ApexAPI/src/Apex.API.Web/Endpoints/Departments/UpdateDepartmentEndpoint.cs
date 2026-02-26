@@ -24,7 +24,7 @@ public class UpdateDepartmentEndpoint : Endpoint<UpdateDepartmentRequest>
     public override void Configure()
     {
         Put("/departments/{id}");
-        Roles("TenantAdmin", "Administrator");
+        Roles("TenantAdmin");
         Summary(s =>
         {
             s.Summary = "Update a department";

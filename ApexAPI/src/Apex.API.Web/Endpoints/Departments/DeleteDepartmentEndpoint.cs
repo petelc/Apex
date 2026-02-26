@@ -17,7 +17,7 @@ public class DeleteDepartmentEndpoint : EndpointWithoutRequest
     public override void Configure()
     {
         Delete("/departments/{id}");
-        Roles("TenantAdmin", "Administrator");
+        Roles("TenantAdmin");
         Summary(s =>
         {
             s.Summary = "Delete (deactivate) a department";

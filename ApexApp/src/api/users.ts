@@ -225,13 +225,6 @@ export const userApi = {
     },
 
     /**
-     * Create a new role
-     */
-    createRole: async (name: string): Promise<void> => {
-      await apiClient.post('/admin/roles', { name });
-    },
-
-    /**
      * Create a new user (admin)
      */
     createUser: async (data: AdminCreateUserRequest): Promise<User> => {
