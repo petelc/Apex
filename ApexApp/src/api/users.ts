@@ -209,11 +209,26 @@ export const userApi = {
    */
   admin: {
     /**
+     * List all users in the current tenant (admin view — includes phone, department, roles)
+     */
+    listUsers: async (): Promise<User[]> => {
+      const response = await apiClient.get<User[]>('/admin/users');
+      return response.data;
+    },
+
+    /**
      * Get all available roles
      */
     getAllRoles: async (): Promise<string[]> => {
       const response = await apiClient.get<string[]>('/admin/roles');
       return response.data;
+    },
+
+    /**
+     * Create a new role
+     */
+    createRole: async (name: string): Promise<void> => {
+      await apiClient.post('/admin/roles', { name });
     },
 
     /**

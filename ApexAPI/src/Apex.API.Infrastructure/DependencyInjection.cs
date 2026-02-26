@@ -9,6 +9,7 @@ using FluentValidation;
 using Traxs.SharedKernel;
 using Apex.API.Core.Interfaces;
 using Apex.API.Core.Aggregates.UserAggregate;
+using Apex.API.Infrastructure.Caching;
 using Apex.API.Infrastructure.Data;
 using Apex.API.Infrastructure.Identity;
 using Apex.API.Infrastructure.Services;
@@ -135,6 +136,26 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
 
+        // ========================================================================
+        // REDIS: Distributed cache
+        // ========================================================================
+        var redisConnection = configuration.GetSection("Redis")["ConnectionString"];
+        if (!string.IsNullOrWhiteSpace(redisConnection))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnection;
+                options.InstanceName = "apex:";
+            });
+        }
+        else
+        {
+            // Fall back to in-memory distributed cache for local dev without Redis
+            services.AddDistributedMemoryCache();
+        }
+
+        services.AddSingleton<ICacheService, CacheService>();
+
         // Tenant context
         services.AddScoped<ITenantContext, TenantContext>();
 
@@ -179,17 +200,21 @@ public static class DependencyInjection
             typeof(Apex.API.UseCases.Tenants.Create.CreateTenantCommand).Assembly);
 
         // ========================================================================
-        // SENDGRID: Email service configuration
+        // EMAIL: provider selected by Email:Provider (SendGrid | Smtp | Console)
         // ========================================================================
         services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
 
         var emailProvider = configuration.GetValue<string>("Email:Provider") ?? "Console";
 
-        if (emailProvider == "SendGrid")
+        if (emailProvider.Equals("SendGrid", StringComparison.OrdinalIgnoreCase))
         {
             var apiKey = configuration.GetValue<string>("Email:SendGridApiKey");
             services.AddSendGrid(options => { options.ApiKey = apiKey; });
             services.AddScoped<IEmailService, SendGridEmailService>();
+        }
+        else if (emailProvider.Equals("Smtp", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddScoped<IEmailService, SmtpEmailService>();
         }
         else
         {

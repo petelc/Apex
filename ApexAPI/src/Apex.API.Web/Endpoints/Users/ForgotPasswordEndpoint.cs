@@ -94,8 +94,6 @@ public class ForgotPasswordEndpoint : Endpoint<ForgotPasswordRequest>
             var frontendUrl = _configuration["App:FrontendUrl"] ?? "http://localhost:3000";
             var resetUrl = $"{frontendUrl}/reset-password?email={Uri.EscapeDataString(user.Email ?? string.Empty)}&token={Uri.EscapeDataString(token)}";
 
-            _logger.LogInformation("Reset URL created: {ResetUrl}", resetUrl);
-
             // Send email with reset link
             var emailSubject = "Password Reset Request";
             var emailBody = $@"

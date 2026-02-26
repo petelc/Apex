@@ -1,269 +1,249 @@
+using Apex.API.Core.Interfaces;
 using Apex.API.UseCases.Dashboard.DTOs;
 using Apex.API.UseCases.Common.Interfaces;
 using Apex.API.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace Apex.API.Infrastructure.Services;
 
 /// <summary>
-/// Dashboard service implementation with caching
-/// FIXED: Sequential queries to avoid DbContext concurrency issues
-/// FIXED: Smart Enum handling for EF Core translation
+/// Dashboard service implementation with distributed Redis caching.
+/// All queries are scoped to the current tenant via ITenantContext.
 /// </summary>
 public class DashboardService : IDashboardService
 {
     private readonly ApexDbContext _context;
-    private readonly IMemoryCache _cache;
+    private readonly ICacheService _cache;
+    private readonly ITenantContext _tenantContext;
     private readonly ILogger<DashboardService> _logger;
+
+    // Per-tenant-user composite stats cache (2 min + jitter)
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(2);
+
+    private string DashKey(Guid userId) =>
+        $"v1:dash:{_tenantContext.CurrentTenantId.Value}:{userId}";
 
     public DashboardService(
         ApexDbContext context,
-        IMemoryCache cache,
+        ICacheService cache,
+        ITenantContext tenantContext,
         ILogger<DashboardService> logger)
     {
         _context = context;
         _cache = cache;
+        _tenantContext = tenantContext;
         _logger = logger;
     }
 
-    public async Task<DashboardStatsDto> GetDashboardStatsAsync(
+    public Task<DashboardStatsDto> GetDashboardStatsAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
+        => _cache.GetOrSetAsync<DashboardStatsDto>(
+            DashKey(userId),
+            ct => BuildStatsAsync(userId, ct),
+            CacheDuration,
+            cancellationToken);
+
+    // Individual sub-methods are not cached separately — only the composite is.
+    public Task<ChangeManagementStatsDto> GetChangeManagementStatsAsync(
+        CancellationToken cancellationToken = default)
+        => FetchChangeStatsAsync(cancellationToken);
+
+    public Task<ProjectManagementStatsDto> GetProjectManagementStatsAsync(
+        CancellationToken cancellationToken = default)
+        => FetchProjectStatsAsync(cancellationToken);
+
+    public Task<TaskManagementStatsDto> GetTaskManagementStatsAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+        => FetchTaskStatsAsync(userId, cancellationToken);
+
+    // -------------------------------------------------------------------------
+    // Private builders
+    // -------------------------------------------------------------------------
+
+    private async Task<DashboardStatsDto> BuildStatsAsync(Guid userId, CancellationToken ct)
     {
-        var cacheKey = $"dashboard_stats_{userId}";
+        // Sequential queries — DbContext is not thread-safe
+        var changeStats  = await FetchChangeStatsAsync(ct);
+        var projectStats = await FetchProjectStatsAsync(ct);
+        var taskStats    = await FetchTaskStatsAsync(userId, ct);
+        var activity     = await FetchRecentActivityAsync(ct);
 
-        if (_cache.TryGetValue<DashboardStatsDto>(cacheKey, out var cachedStats) && cachedStats != null)
+        return new DashboardStatsDto
         {
-            return cachedStats;
-        }
-
-        // ✅ FIXED: Execute queries SEQUENTIALLY to avoid DbContext concurrency issues
-        var changeStats = await GetChangeManagementStatsAsync(cancellationToken);
-        var projectStats = await GetProjectManagementStatsAsync(cancellationToken);
-        var taskStats = await GetTaskManagementStatsAsync(userId, cancellationToken);
-        var recentActivity = await GetRecentActivityAsync(cancellationToken);
-
-        var stats = new DashboardStatsDto
-        {
-            ChangeManagement = changeStats,
+            ChangeManagement  = changeStats,
             ProjectManagement = projectStats,
-            TaskManagement = taskStats,
-            RecentActivity = recentActivity
+            TaskManagement    = taskStats,
+            RecentActivity    = activity
         };
-
-        _cache.Set(cacheKey, stats, CacheDuration);
-        return stats;
     }
 
-    public async Task<ChangeManagementStatsDto> GetChangeManagementStatsAsync(
-        CancellationToken cancellationToken = default)
+    private async Task<ChangeManagementStatsDto> FetchChangeStatsAsync(CancellationToken ct)
     {
-        var now = DateTime.UtcNow;
-        var today = now.Date;
+        var tenantId = _tenantContext.CurrentTenantId;
+        var today    = DateTime.UtcNow.Date;
 
-        // Get all changes for calculations
         var changes = await _context.ChangeRequests
             .AsNoTracking()
-            .Select(c => new
-            {
-                c.Status,
-                c.ScheduledStartDate
-            })
-            .ToListAsync(cancellationToken);
+            .Where(c => c.TenantId == tenantId)
+            .Select(c => new { c.Status, c.ScheduledStartDate })
+            .ToListAsync(ct);
 
-        var totalChanges = changes.Count;
-        var draftChanges = changes.Count(c => c.Status.Value == 0); // Draft
-        var pendingApproval = changes.Count(c => c.Status.Value == 1); // Submitted
-        var approved = changes.Count(c => c.Status.Value == 2); // Approved
-        var inProgress = changes.Count(c => c.Status.Value == 4); // InProgress
-        var completed = changes.Count(c => c.Status.Value == 5); // Completed
-        var failed = changes.Count(c => c.Status.Value == 6); // Failed
-
+        var total          = changes.Count;
+        var draft          = changes.Count(c => c.Status.Value == 0);
+        var pendingApproval = changes.Count(c => c.Status.Value == 1);
+        var approved       = changes.Count(c => c.Status.Value == 2);
+        var inProgress     = changes.Count(c => c.Status.Value == 4);
+        var completed      = changes.Count(c => c.Status.Value == 5);
+        var failed         = changes.Count(c => c.Status.Value == 6);
         var scheduledToday = changes.Count(c =>
-            c.ScheduledStartDate.HasValue &&
-            c.ScheduledStartDate.Value.Date == today);
+            c.ScheduledStartDate.HasValue && c.ScheduledStartDate.Value.Date == today);
 
-        // Calculate success rate
         var totalFinished = completed + failed;
-        var successRate = totalFinished > 0
-            ? (decimal)completed / totalFinished * 100
-            : 0;
+        var successRate   = totalFinished > 0 ? (decimal)completed / totalFinished * 100 : 0;
 
         return new ChangeManagementStatsDto
         {
-            TotalChanges = totalChanges,
-            DraftChanges = draftChanges,
+            TotalChanges    = total,
+            DraftChanges    = draft,
             PendingApproval = pendingApproval,
-            Approved = approved,
-            InProgress = inProgress,
-            Completed = completed,
-            Failed = failed,
-            SuccessRate = Math.Round(successRate, 1),
-            ScheduledToday = scheduledToday
+            Approved        = approved,
+            InProgress      = inProgress,
+            Completed       = completed,
+            Failed          = failed,
+            SuccessRate     = Math.Round(successRate, 1),
+            ScheduledToday  = scheduledToday
         };
     }
 
-    public async Task<ProjectManagementStatsDto> GetProjectManagementStatsAsync(
-        CancellationToken cancellationToken = default)
+    private async Task<ProjectManagementStatsDto> FetchProjectStatsAsync(CancellationToken ct)
     {
-        var now = DateTime.UtcNow;
+        var tenantId = _tenantContext.CurrentTenantId;
+        var now      = DateTime.UtcNow;
 
-        // ✅ FIXED: Get project request stats - load to memory first to avoid Smart Enum translation issues
-        var allProjectRequests = await _context.ProjectRequests
+        var projectRequests = await _context.ProjectRequests
             .AsNoTracking()
+            .Where(pr => pr.TenantId == tenantId)
             .Select(pr => new { pr.Status })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
 
-        var pendingRequests = allProjectRequests.Count(pr => pr.Status.Value == 0 || pr.Status.Value == 1); // Draft or Pending
+        var pendingRequests = projectRequests.Count(pr => pr.Status.Value == 0 || pr.Status.Value == 1);
 
-        // Get project stats - load to memory first
         var projects = await _context.Projects
             .AsNoTracking()
-            .Select(p => new
-            {
-                p.Status,
-                p.EndDate
-            })
-            .ToListAsync(cancellationToken);
+            .Where(p => p.TenantId == tenantId)
+            .Select(p => new { p.Status, p.EndDate })
+            .ToListAsync(ct);
 
-        var totalProjects = projects.Count;
-        var activeProjects = projects.Count(p => p.Status.Value == 1); // Active
-        var onHoldProjects = projects.Count(p => p.Status.Value == 2); // OnHold
-        var completedProjects = projects.Count(p => p.Status.Value == 3); // Completed
-
-        // Overdue = active projects with end date in the past
-        var overdueProjects = projects.Count(p =>
-            p.Status.Value == 1 &&
-            p.EndDate.HasValue &&
-            p.EndDate.Value < now);
-
-        // Calculate completion rate
-        var totalFinished = completedProjects + projects.Count(p => p.Status.Value == 4); // Completed + Cancelled
-        var completionRate = totalProjects > 0
-            ? (decimal)completedProjects / totalProjects * 100
-            : 0;
+        var total          = projects.Count;
+        var active         = projects.Count(p => p.Status.Value == 1);
+        var onHold         = projects.Count(p => p.Status.Value == 2);
+        var completed      = projects.Count(p => p.Status.Value == 3);
+        var overdue        = projects.Count(p => p.Status.Value == 1 && p.EndDate.HasValue && p.EndDate.Value < now);
+        var completionRate = total > 0 ? (decimal)completed / total * 100 : 0;
 
         return new ProjectManagementStatsDto
         {
-            TotalProjects = totalProjects,
-            PendingRequests = pendingRequests,
-            ActiveProjects = activeProjects,
-            OnHoldProjects = onHoldProjects,
-            CompletedProjects = completedProjects,
-            OverdueProjects = overdueProjects,
-            CompletionRate = Math.Round(completionRate, 1)
+            TotalProjects    = total,
+            PendingRequests  = pendingRequests,
+            ActiveProjects   = active,
+            OnHoldProjects   = onHold,
+            CompletedProjects = completed,
+            OverdueProjects  = overdue,
+            CompletionRate   = Math.Round(completionRate, 1)
         };
     }
 
-    public async Task<TaskManagementStatsDto> GetTaskManagementStatsAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
+    private async Task<TaskManagementStatsDto> FetchTaskStatsAsync(Guid userId, CancellationToken ct)
     {
-        var now = DateTime.UtcNow;
-        var today = now.Date;
+        var tenantId = _tenantContext.CurrentTenantId;
+        var today    = DateTime.UtcNow.Date;
 
-        // Get all tasks for calculations - load to memory first
         var tasks = await _context.Tasks
             .AsNoTracking()
-            .Select(t => new
-            {
-                t.Status,
-                t.DueDate,
-                t.AssignedToUserId
-            })
-            .ToListAsync(cancellationToken);
+            .Where(t => t.TenantId == tenantId)
+            .Select(t => new { t.Status, t.DueDate, t.AssignedToUserId })
+            .ToListAsync(ct);
 
-        var totalTasks = tasks.Count;
-        var openTasks = tasks.Count(t => t.Status.Value == 0); // Open
-        var inProgressTasks = tasks.Count(t => t.Status.Value == 1); // InProgress
-        var completedTasks = tasks.Count(t => t.Status.Value == 2); // Completed
-
-        // Overdue = open or in-progress tasks with due date in the past
-        var overdueTasks = tasks.Count(t =>
+        var total          = tasks.Count;
+        var open           = tasks.Count(t => t.Status.Value == 0);
+        var inProgress     = tasks.Count(t => t.Status.Value == 1);
+        var completed      = tasks.Count(t => t.Status.Value == 2);
+        var overdue        = tasks.Count(t =>
             (t.Status.Value == 0 || t.Status.Value == 1) &&
-            t.DueDate.HasValue &&
-            t.DueDate.Value.Date < today);
-
-        // My tasks (assigned to current user)
-        var myTasks = tasks.Count(t => t.AssignedToUserId == userId);
-
-        // Due today
-        var dueToday = tasks.Count(t =>
+            t.DueDate.HasValue && t.DueDate.Value.Date < today);
+        var myTasks        = tasks.Count(t => t.AssignedToUserId == userId);
+        var dueToday       = tasks.Count(t =>
             (t.Status.Value == 0 || t.Status.Value == 1) &&
-            t.DueDate.HasValue &&
-            t.DueDate.Value.Date == today);
-
-        // Calculate completion rate
-        var completionRate = totalTasks > 0
-            ? (decimal)completedTasks / totalTasks * 100
-            : 0;
+            t.DueDate.HasValue && t.DueDate.Value.Date == today);
+        var completionRate = total > 0 ? (decimal)completed / total * 100 : 0;
 
         return new TaskManagementStatsDto
         {
-            TotalTasks = totalTasks,
-            OpenTasks = openTasks,
-            InProgressTasks = inProgressTasks,
-            CompletedTasks = completedTasks,
-            OverdueTasks = overdueTasks,
-            MyTasks = myTasks,
-            DueToday = dueToday,
-            CompletionRate = Math.Round(completionRate, 1)
+            TotalTasks      = total,
+            OpenTasks       = open,
+            InProgressTasks = inProgress,
+            CompletedTasks  = completed,
+            OverdueTasks    = overdue,
+            MyTasks         = myTasks,
+            DueToday        = dueToday,
+            CompletionRate  = Math.Round(completionRate, 1)
         };
     }
 
-    private async Task<RecentActivityDto> GetRecentActivityAsync(
-        CancellationToken cancellationToken = default)
+    private async Task<RecentActivityDto> FetchRecentActivityAsync(CancellationToken ct)
     {
-        // Get recent changes (last 5)
+        var tenantId = _tenantContext.CurrentTenantId;
+
         var recentChanges = await _context.ChangeRequests
             .AsNoTracking()
+            .Where(c => c.TenantId == tenantId)
             .OrderByDescending(c => c.CreatedDate)
             .Take(5)
             .Select(c => new RecentChangeDto
             {
-                Id = c.Id.Value,
-                Title = c.Title,
-                Status = c.Status.Name,
+                Id          = c.Id.Value,
+                Title       = c.Title,
+                Status      = c.Status.Name,
                 CreatedDate = c.CreatedDate
             })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
 
-        // Get recent projects (last 5)
         var recentProjects = await _context.Projects
             .AsNoTracking()
+            .Where(p => p.TenantId == tenantId)
             .OrderByDescending(p => p.CreatedDate)
             .Take(5)
             .Select(p => new RecentProjectDto
             {
-                Id = p.Id.Value,
-                Name = p.Name,
-                Status = p.Status.Name,
+                Id          = p.Id.Value,
+                Name        = p.Name,
+                Status      = p.Status.Name,
                 CreatedDate = p.CreatedDate
             })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
 
-        // Get recent tasks (last 5)
         var recentTasks = await _context.Tasks
             .AsNoTracking()
+            .Where(t => t.TenantId == tenantId)
             .OrderByDescending(t => t.CreatedDate)
             .Take(5)
             .Select(t => new RecentTaskDto
             {
-                Id = t.Id.Value,
-                Title = t.Title,
+                Id     = t.Id.Value,
+                Title  = t.Title,
                 Status = t.Status.Name,
                 DueDate = t.DueDate
             })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
 
         return new RecentActivityDto
         {
-            RecentChanges = recentChanges,
+            RecentChanges  = recentChanges,
             RecentProjects = recentProjects,
-            RecentTasks = recentTasks
+            RecentTasks    = recentTasks
         };
     }
 }

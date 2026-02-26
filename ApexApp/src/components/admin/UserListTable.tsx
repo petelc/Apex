@@ -89,7 +89,7 @@ export default function UserListTable({
               </TableCell>
               <TableCell>
                 <Typography variant='body2' color='text.secondary'>
-                  —
+                  {user.phoneNumber || '—'}
                 </Typography>
               </TableCell>
               <TableCell>

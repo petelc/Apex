@@ -1,25 +1,31 @@
+using Apex.API.Core.Interfaces;
 using Apex.API.UseCases.Users.DTOs;
 using Apex.API.UseCases.Users.Interfaces;
 using Apex.API.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace Apex.API.Infrastructure.Services;
 
 /// <summary>
-/// Service for looking up user information with caching
+/// Looks up user information with distributed Redis caching.
+/// Batch methods do a single DB query for all uncached IDs and cache each result individually.
 /// </summary>
 public class UserLookupService : IUserLookupService
 {
     private readonly ApexDbContext _context;
-    private readonly IMemoryCache _cache;
+    private readonly ICacheService _cache;
     private readonly ILogger<UserLookupService> _logger;
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+
+    private static readonly TimeSpan UserTtl = TimeSpan.FromMinutes(5);
+
+    // Key format: v1:user:{id}  |  v1:user_summary:{id}
+    private static string UserKey(Guid id) => $"v1:user:{id}";
+    private static string UserSummaryKey(Guid id) => $"v1:user_summary:{id}";
 
     public UserLookupService(
         ApexDbContext context,
-        IMemoryCache cache,
+        ICacheService cache,
         ILogger<UserLookupService> logger)
     {
         _context = context;
@@ -27,95 +33,42 @@ public class UserLookupService : IUserLookupService
         _logger = logger;
     }
 
-    public async Task<UserDto?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken = default)
-    {
-        // Check cache first
-        var cacheKey = $"user_{userId}";
-        if (_cache.TryGetValue<UserDto>(cacheKey, out var cachedUser))
-        {
-            return cachedUser;
-        }
+    public Task<UserDto?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        => _cache.GetOrSetAsync<UserDto?>(
+            UserKey(userId),
+            ct => FetchUserAsync(userId, ct),
+            UserTtl,
+            cancellationToken);
 
-        // Query database
-        var user = await _context.Users
-            .AsNoTracking()
-            .Where(u => u.Id == userId)
-            .Select(u => new UserDto
-            {
-                Id = u.Id,
-                Email = u.Email ?? string.Empty,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                IsActive = u.IsActive
-            })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        // Cache the result (even if null, to avoid repeated DB queries)
-        if (user != null)
-        {
-            _cache.Set(cacheKey, user, CacheDuration);
-        }
-
-        return user;
-    }
-
-    public async Task<UserSummaryDto?> GetUserSummaryByIdAsync(Guid userId, CancellationToken cancellationToken = default)
-    {
-        // Check cache first
-        var cacheKey = $"user_summary_{userId}";
-        if (_cache.TryGetValue<UserSummaryDto>(cacheKey, out var cachedSummary))
-        {
-            return cachedSummary;
-        }
-
-        // Query database
-        var summary = await _context.Users
-            .AsNoTracking()
-            .Where(u => u.Id == userId)
-            .Select(u => new UserSummaryDto
-            {
-                Id = u.Id,
-                FullName = $"{u.FirstName} {u.LastName}".Trim(),
-                Email = u.Email ?? string.Empty
-            })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        // Cache the result
-        if (summary != null)
-        {
-            _cache.Set(cacheKey, summary, CacheDuration);
-        }
-
-        return summary;
-    }
+    public Task<UserSummaryDto?> GetUserSummaryByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        => _cache.GetOrSetAsync<UserSummaryDto?>(
+            UserSummaryKey(userId),
+            ct => FetchUserSummaryAsync(userId, ct),
+            UserTtl,
+            cancellationToken);
 
     public async Task<Dictionary<Guid, UserDto>> GetUsersByIdsAsync(
         IEnumerable<Guid> userIds,
         CancellationToken cancellationToken = default)
     {
         var distinctIds = userIds.Distinct().ToList();
-        if (!distinctIds.Any())
-            return new Dictionary<Guid, UserDto>();
+        if (distinctIds.Count == 0) return new Dictionary<Guid, UserDto>();
 
-        var result = new Dictionary<Guid, UserDto>();
+        var result = new Dictionary<Guid, UserDto>(distinctIds.Count);
         var uncachedIds = new List<Guid>();
 
-        // Check cache for each user
-        foreach (var userId in distinctIds)
+        // Check cache for each ID individually
+        foreach (var id in distinctIds)
         {
-            var cacheKey = $"user_{userId}";
-            if (_cache.TryGetValue<UserDto>(cacheKey, out var cachedUser) && cachedUser != null)
-            {
-                result[userId] = cachedUser;
-            }
+            var cached = await _cache.GetAsync<UserDto>(UserKey(id), cancellationToken);
+            if (cached is not null)
+                result[id] = cached;
             else
-            {
-                uncachedIds.Add(userId);
-            }
+                uncachedIds.Add(id);
         }
 
-        // Fetch uncached users from database
-        if (uncachedIds.Any())
+        // Single batch query for all uncached IDs
+        if (uncachedIds.Count > 0)
         {
             var users = await _context.Users
                 .AsNoTracking()
@@ -130,12 +83,10 @@ public class UserLookupService : IUserLookupService
                 })
                 .ToListAsync(cancellationToken);
 
-            // Add to result and cache
             foreach (var user in users)
             {
                 result[user.Id] = user;
-                var cacheKey = $"user_{user.Id}";
-                _cache.Set(cacheKey, user, CacheDuration);
+                await _cache.SetAsync(UserKey(user.Id), user, UserTtl, cancellationToken);
             }
         }
 
@@ -147,28 +98,21 @@ public class UserLookupService : IUserLookupService
         CancellationToken cancellationToken = default)
     {
         var distinctIds = userIds.Distinct().ToList();
-        if (!distinctIds.Any())
-            return new Dictionary<Guid, UserSummaryDto>();
+        if (distinctIds.Count == 0) return new Dictionary<Guid, UserSummaryDto>();
 
-        var result = new Dictionary<Guid, UserSummaryDto>();
+        var result = new Dictionary<Guid, UserSummaryDto>(distinctIds.Count);
         var uncachedIds = new List<Guid>();
 
-        // Check cache for each user
-        foreach (var userId in distinctIds)
+        foreach (var id in distinctIds)
         {
-            var cacheKey = $"user_summary_{userId}";
-            if (_cache.TryGetValue<UserSummaryDto>(cacheKey, out var cachedSummary) && cachedSummary != null)
-            {
-                result[userId] = cachedSummary;
-            }
+            var cached = await _cache.GetAsync<UserSummaryDto>(UserSummaryKey(id), cancellationToken);
+            if (cached is not null)
+                result[id] = cached;
             else
-            {
-                uncachedIds.Add(userId);
-            }
+                uncachedIds.Add(id);
         }
 
-        // Fetch uncached users from database
-        if (uncachedIds.Any())
+        if (uncachedIds.Count > 0)
         {
             var summaries = await _context.Users
                 .AsNoTracking()
@@ -181,15 +125,43 @@ public class UserLookupService : IUserLookupService
                 })
                 .ToListAsync(cancellationToken);
 
-            // Add to result and cache
             foreach (var summary in summaries)
             {
                 result[summary.Id] = summary;
-                var cacheKey = $"user_summary_{summary.Id}";
-                _cache.Set(cacheKey, summary, CacheDuration);
+                await _cache.SetAsync(UserSummaryKey(summary.Id), summary, UserTtl, cancellationToken);
             }
         }
 
         return result;
     }
+
+    // -------------------------------------------------------------------------
+    // Private DB fetchers (used as factories by GetOrSetAsync)
+    // -------------------------------------------------------------------------
+
+    private async Task<UserDto?> FetchUserAsync(Guid userId, CancellationToken ct)
+        => await _context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => new UserDto
+            {
+                Id = u.Id,
+                Email = u.Email ?? string.Empty,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                IsActive = u.IsActive
+            })
+            .FirstOrDefaultAsync(ct);
+
+    private async Task<UserSummaryDto?> FetchUserSummaryAsync(Guid userId, CancellationToken ct)
+        => await _context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => new UserSummaryDto
+            {
+                Id = u.Id,
+                FullName = $"{u.FirstName} {u.LastName}".Trim(),
+                Email = u.Email ?? string.Empty
+            })
+            .FirstOrDefaultAsync(ct);
 }
