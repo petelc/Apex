@@ -10,6 +10,8 @@ using Apex.API.Core.Aggregates.DepartmentAggregate;
 using Apex.API.Core.Aggregates.ChangeRequestAggregate;
 using Apex.API.Core.Aggregates.DeploymentRequestAggregate;
 using Apex.API.Core.Entities;
+using Apex.API.Core.Interfaces;
+using Apex.API.Core.ValueObjects;
 
 
 namespace Apex.API.Infrastructure.Data;
@@ -20,14 +22,22 @@ namespace Apex.API.Infrastructure.Data;
 public class ApexDbContext : IdentityDbContext<User, Role, Guid>
 {
     private readonly IDomainEventDispatcher? _dispatcher;
+    private readonly ITenantContext? _tenantContext;
 
     public ApexDbContext(
         DbContextOptions<ApexDbContext> options,
+        ITenantContext? tenantContext = null,
         IDomainEventDispatcher? dispatcher = null)
         : base(options)
     {
+        _tenantContext = tenantContext;
         _dispatcher = dispatcher;
     }
+
+    // Used by global query filters — evaluated per-query against the current DbContext instance.
+    // Falls back to TenantId.Empty at design-time (migrations) where no HTTP context exists.
+    private TenantId TenantIdFilter => _tenantContext?.CurrentTenantId ?? TenantId.Empty;
+    private Guid TenantGuidFilter => _tenantContext?.CurrentTenantId.Value ?? Guid.Empty;
 
     // Aggregates
     public DbSet<Tenant> Tenants => Set<Tenant>();
@@ -58,6 +68,35 @@ public class ApexDbContext : IdentityDbContext<User, Role, Guid>
         modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins", "shared");
         modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens", "shared");
         modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims", "shared");
+
+        // ====================================================================
+        // GLOBAL TENANT QUERY FILTERS
+        // Every query against these entities automatically includes
+        // WHERE TenantId = <currentTenantId> — no per-query filter needed.
+        // Use .IgnoreQueryFilters() on a query when cross-tenant access is
+        // intentional (e.g. admin reporting, background jobs).
+        // ====================================================================
+        modelBuilder.Entity<ChangeRequest>()
+            .HasQueryFilter(cr => cr.TenantId == TenantIdFilter);
+
+        modelBuilder.Entity<ProjectRequest>()
+            .HasQueryFilter(r => r.TenantId == TenantIdFilter);
+
+        modelBuilder.Entity<Project>()
+            .HasQueryFilter(p => p.TenantId == TenantIdFilter);
+
+        modelBuilder.Entity<Department>()
+            .HasQueryFilter(d => d.TenantId == TenantIdFilter);
+
+        modelBuilder.Entity<Apex.API.Core.Aggregates.TaskAggregate.Task>()
+            .HasQueryFilter(t => t.TenantId == TenantIdFilter);
+
+        modelBuilder.Entity<DeploymentRequest>()
+            .HasQueryFilter(dr => dr.TenantId == TenantIdFilter);
+
+        // Notification uses a plain Guid for TenantId (not a Vogen value object)
+        modelBuilder.Entity<Notification>()
+            .HasQueryFilter(n => n.TenantId == TenantGuidFilter);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -1,0 +1,24 @@
+{
+  "name": "apex-tests",
+  "version": "1.0.0",
+  "description": "Playwright E2E tests for ApexApp",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ci": "CI=true playwright test",
+    "test:report": "playwright show-report",
+    "codegen": "playwright codegen http://localhost:3000",
+    "test:auth": "playwright test tests/auth",
+    "test:cr": "playwright test tests/change-requests",
+    "test:projects": "playwright test tests/projects",
+    "test:deployments": "playwright test tests/deployments",
+    "test:admin": "playwright test tests/admin",
+    "test:dashboard": "playwright test tests/dashboard"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.3.0",
+    "dotenv": "^16.4.0"
+  }
+}

@@ -26,13 +26,13 @@ export function UserAutocomplete({
   disabled = false,
   required = false,
 }: UserAutocompleteProps) {
-  const selectedUser = users.find((u) => u.userId === selectedUserId) || null;
+  const selectedUser = users.find((u) => u.id === selectedUserId) || null;
 
   return (
     <Autocomplete
       value={selectedUser}
       onChange={(_, newValue) => {
-        onSelect(newValue?.userId || null);
+        onSelect(newValue?.id || null);
       }}
       options={users}
       getOptionLabel={(option) => option.fullName}
@@ -41,7 +41,7 @@ export function UserAutocomplete({
       renderOption={(props, option) => {
         const { key, ...otherProps } = props as any;
         return (
-          <li key={option.userId} {...otherProps}>
+          <li key={option.id} {...otherProps}>
             <div>
               <div style={{ fontWeight: 600 }}>{option.fullName}</div>
               <div style={{ fontSize: '0.875rem', color: '#666' }}>

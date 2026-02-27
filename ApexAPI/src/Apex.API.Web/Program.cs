@@ -24,14 +24,16 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:3000",   // Your React app
-                "http://localhost:5173",   // Vite (if using)
-                "https://localhost:3000"
-            )
-            .AllowAnyMethod()              // POST, GET, PUT, DELETE
-            .AllowAnyHeader()              // All headers
-            .AllowCredentials();           // Auth/cookies
+            .SetIsOriginAllowed(origin =>
+            {
+                // Allow localhost and any *.localhost subdomain on dev ports
+                var uri = new Uri(origin);
+                return (uri.Host == "localhost" || uri.Host.EndsWith(".localhost"))
+                       && (uri.Port == 3000 || uri.Port == 5173);
+            })
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
     options.AddPolicy("HangfirePolicy", policy =>
     {

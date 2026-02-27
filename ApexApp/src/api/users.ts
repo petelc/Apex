@@ -26,7 +26,7 @@ export interface User {
  * ✅ Defined here to avoid circular imports
  */
 export interface UserSummary {
-  userId: string;
+  id: string;
   fullName: string;
   email: string;
 }

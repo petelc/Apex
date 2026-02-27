@@ -329,7 +329,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </Badge>
           </IconButton>
 
-          <IconButton color='inherit' onClick={handleProfileMenuOpen}>
+          <IconButton color='inherit' onClick={handleProfileMenuOpen} aria-label='Account menu'>
             <Avatar
               sx={{
                 width: 32,
