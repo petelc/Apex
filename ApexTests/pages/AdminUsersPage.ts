@@ -11,7 +11,7 @@ export class AdminUsersPage extends BasePage {
   }
 
   async assertTableVisible(): Promise<void> {
-    await expect(this.page.getByRole('table').or(this.page.locator('table'))).toBeVisible();
+    await expect(this.page.getByRole('table').first()).toBeVisible();
   }
 
   async searchUser(term: string): Promise<void> {
@@ -22,11 +22,13 @@ export class AdminUsersPage extends BasePage {
   }
 
   async assertUserInTable(nameOrEmail: string): Promise<void> {
-    await expect(this.page.getByText(nameOrEmail)).toBeVisible();
+    // Scope to the table to avoid matching the sidebar profile section.
+    await expect(this.page.getByRole('table').getByText(nameOrEmail)).toBeVisible();
   }
 
   async assertUserNotInTable(nameOrEmail: string): Promise<void> {
-    await expect(this.page.getByText(nameOrEmail)).not.toBeVisible();
+    // Scope to the table — sidebar always shows the logged-in user's email.
+    await expect(this.page.getByRole('table').getByText(nameOrEmail)).not.toBeVisible();
   }
 
   async clickCreateUser(): Promise<void> {
@@ -43,7 +45,8 @@ export class AdminUsersPage extends BasePage {
     await dialog.getByLabel(/first name/i).fill(data.firstName);
     await dialog.getByLabel(/last name/i).fill(data.lastName);
     await dialog.getByLabel(/email/i).fill(data.email);
-    await dialog.getByLabel(/password/i).fill(data.password);
+    // Use exact match to avoid matching "Confirm Password" field in the same dialog.
+    await dialog.getByLabel(/^password$/i).fill(data.password);
   }
 
   async submitCreateUserForm(): Promise<void> {

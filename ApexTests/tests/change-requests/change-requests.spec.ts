@@ -74,7 +74,7 @@ test.describe('Change Requests', () => {
       const detailPage = new ChangeRequestDetailPage(page);
       await detailPage.goto(crId);
       await detailPage.clickSubmitForReview();
-      await detailPage.assertStatusChip('Under Review');
+      await detailPage.assertStatusChip('Submitted');
     });
   });
 
@@ -106,7 +106,7 @@ test.describe('Change Requests', () => {
     test('approves a change request under review', async ({ page }) => {
       const detailPage = new ChangeRequestDetailPage(page);
       await detailPage.goto(approveCrId);
-      await detailPage.assertStatusChip('Under Review');
+      await detailPage.assertStatusChip('Submitted');
       await detailPage.clickApprove();
       await detailPage.assertStatusChip('Approved');
     });
@@ -114,7 +114,7 @@ test.describe('Change Requests', () => {
     test('denies a change request with a reason', async ({ page }) => {
       const detailPage = new ChangeRequestDetailPage(page);
       await detailPage.goto(denyCrId);
-      await detailPage.assertStatusChip('Under Review');
+      await detailPage.assertStatusChip('Submitted');
       await detailPage.clickDeny();
       await detailPage.fillDenialReason('Not meeting compliance requirements for this sprint');
       await detailPage.assertStatusChip('Denied');

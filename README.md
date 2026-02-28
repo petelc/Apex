@@ -182,9 +182,24 @@ npm run build
 npm run lint
 ```
 
+```bash
+cd ApexTests
+npm run tests:Headed
+npm run test:ci
+npm run test:report
+npm run codegen
+npm run test:auth
+npm run test:cr
+npm run test:project
+npm run test:deployments
+npm run test:admin
+npm run test:dashboard
+```
+
 ---
 
 ## Notes
 
 - For backend-specific architecture and operational details, see `ApexAPI/README.md`.
 - For frontend-specific workflows and UI details, see `ApexApp/README.md`.
+- For Playwright-specific details, see `ApexTests/README.md`

@@ -15,18 +15,19 @@ export class ChangeRequestDetailPage extends BasePage {
   }
 
   async assertStatus(status: string): Promise<void> {
-    // Status shown as a MUI Chip
-    await expect(this.page.getByText(status)).toBeVisible();
+    // Scope to MUI Chip to avoid strict-mode violations with stepper step labels.
+    await expect(this.page.locator('.MuiChip-root', { hasText: status })).toBeVisible();
   }
 
   async clickSubmitForReview(): Promise<void> {
     await this.page.getByRole('button', { name: /submit for review/i }).click();
-    await this.waitForDataLoad();
+    // networkidle catches both the submit API call and the subsequent data reload.
+    await this.page.waitForLoadState('networkidle');
   }
 
   async clickApprove(): Promise<void> {
     await this.page.getByRole('button', { name: /approve/i }).click();
-    await this.waitForDataLoad();
+    await this.page.waitForLoadState('networkidle');
   }
 
   async clickDeny(): Promise<void> {
@@ -38,7 +39,7 @@ export class ChangeRequestDetailPage extends BasePage {
     const dialog = this.page.getByRole('dialog');
     await dialog.getByRole('textbox').fill(reason);
     await dialog.getByRole('button', { name: /confirm|deny|submit/i }).click();
-    await this.waitForDataLoad();
+    await this.page.waitForLoadState('networkidle');
   }
 
   async assertStatusChip(expectedStatus: string): Promise<void> {

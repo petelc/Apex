@@ -14,6 +14,8 @@ export const ChangeRequestStatusBadge = ({ status, size = 'small' }: ChangeReque
     switch (status) {
       case 'Draft':
         return { label: 'Draft', color: 'default' as const };
+      case 'Submitted':
+        return { label: 'Submitted', color: 'warning' as const };
       case 'UnderReview':
         return { label: 'Under Review', color: 'info' as const };
       case 'Approved':

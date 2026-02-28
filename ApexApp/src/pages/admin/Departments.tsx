@@ -211,6 +211,7 @@ export const Departments: React.FC = () => {
                         size='small'
                         onClick={() => handleEditClick(department)}
                         sx={{ mr: 1 }}
+                        aria-label='Edit'
                       >
                         <EditIcon fontSize='small' />
                       </IconButton>
@@ -218,6 +219,7 @@ export const Departments: React.FC = () => {
                         size='small'
                         onClick={() => handleDeleteClick(department)}
                         color='error'
+                        aria-label='Delete'
                       >
                         <DeleteIcon fontSize='small' />
                       </IconButton>

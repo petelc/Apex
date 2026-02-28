@@ -26,15 +26,23 @@ export class CreateChangeRequestPage extends BasePage {
   }
 
   async selectChangeType(type: 'Standard' | 'Normal' | 'Emergency'): Promise<void> {
-    const select = this.page.getByLabel('Change Type').or(this.page.getByRole('combobox', { name: /change type/i })).first();
-    await select.click();
-    await this.page.getByRole('option', { name: type }).click();
+    // MUI Select: getByLabel() resolves to the hidden <input>, not the visible combobox.
+    // Scope via the FormControl wrapper to find the correct combobox trigger.
+    await this.page
+      .locator('.MuiFormControl-root')
+      .filter({ hasText: /^Change Type/ })
+      .locator('[role="combobox"]')
+      .click();
+    await this.page.getByRole('option', { name: type, exact: false }).first().click();
   }
 
   async selectPriority(priority: 'Low' | 'Medium' | 'High' | 'Critical'): Promise<void> {
-    const select = this.page.getByLabel('Priority').or(this.page.getByRole('combobox', { name: /priority/i })).first();
-    await select.click();
-    await this.page.getByRole('option', { name: priority }).click();
+    await this.page
+      .locator('.MuiFormControl-root')
+      .filter({ hasText: /^Priority/ })
+      .locator('[role="combobox"]')
+      .click();
+    await this.page.getByRole('option', { name: priority, exact: false }).first().click();
   }
 
   async clickNext(): Promise<void> {
@@ -56,9 +64,12 @@ export class CreateChangeRequestPage extends BasePage {
   }
 
   async selectRiskLevel(level: 'Low' | 'Medium' | 'High' | 'Critical'): Promise<void> {
-    const select = this.page.getByLabel('Risk Level').or(this.page.getByRole('combobox', { name: /risk level/i })).first();
-    await select.click();
-    await this.page.getByRole('option', { name: level }).click();
+    await this.page
+      .locator('.MuiFormControl-root')
+      .filter({ hasText: /^Risk Level/ })
+      .locator('[role="combobox"]')
+      .click();
+    await this.page.getByRole('option', { name: level, exact: false }).first().click();
   }
 
   // ── Step 3: Review & Submit ──────────────────────────────────────────────────

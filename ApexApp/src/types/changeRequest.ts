@@ -4,6 +4,7 @@
 
 export type ChangeRequestStatus =
   | 'Draft'
+  | 'Submitted'
   | 'UnderReview'
   | 'Approved'
   | 'Denied'

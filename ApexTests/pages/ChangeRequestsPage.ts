@@ -11,8 +11,9 @@ export class ChangeRequestsPage extends BasePage {
   }
 
   async assertDataGridVisible(): Promise<void> {
-    // MUI DataGrid renders a grid role
-    await expect(this.page.getByRole('grid').or(this.page.locator('.MuiDataGrid-root'))).toBeVisible();
+    // MUI DataGrid renders role="grid". Using .first() avoids strict-mode violations
+    // if the OR locator resolves the same element twice.
+    await expect(this.page.getByRole('grid').first()).toBeVisible();
   }
 
   async clickCreateButton(): Promise<void> {
