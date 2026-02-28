@@ -1,0 +1,127 @@
+# ============================================================
+# API — Build, Test & Deploy
+# Triggers on pushes to main that touch ApexAPI/**
+# Skips Aspire + Functional tests (need running infrastructure)
+#
+# Required GitHub secrets:
+#   AZURE_API_PUBLISH_PROFILE  — Download from: Azure Portal → App Service → Overview → "Download publish profile"
+#
+# Required GitHub vars (Settings → Variables):
+#   AZURE_API_APP_NAME  — Your App Service name, e.g. "apex-api-prod"
+# ============================================================
+
+name: API — Build, Test & Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ApexAPI/**'
+      - '.github/workflows/api-deploy.yml'
+  workflow_dispatch: # allow manual trigger from the GitHub Actions UI
+
+env:
+  DOTNET_VERSION: '10.x'
+  WEB_PROJECT: 'ApexAPI/src/Apex.API.Web/Apex.API.Web.csproj'
+  UNIT_TESTS: 'ApexAPI/tests/Apex.API.UnitTests/Apex.API.UnitTests.csproj'
+  INTEGRATION_TESTS: 'ApexAPI/tests/Apex.API.IntegrationTests/Apex.API.IntegrationTests.csproj'
+  PUBLISH_DIR: './api-publish'
+
+jobs:
+  # ----------------------------------------------------------
+  # Job 1: Build & Test
+  # ----------------------------------------------------------
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Restore only the projects we need — avoids pulling in Aspire host workload
+      - name: Restore
+        run: |
+          dotnet restore ${{ env.WEB_PROJECT }}
+          dotnet restore ${{ env.UNIT_TESTS }}
+          dotnet restore ${{ env.INTEGRATION_TESTS }}
+
+      # Build web + test projects in Release config
+      # Building the web project implicitly builds Core/UseCases/Infrastructure
+      - name: Build
+        run: |
+          dotnet build ${{ env.WEB_PROJECT }} -c Release --no-restore
+          dotnet build ${{ env.UNIT_TESTS }} -c Release --no-restore
+          dotnet build ${{ env.INTEGRATION_TESTS }} -c Release --no-restore
+
+      # Unit tests — pure domain logic, no external dependencies
+      - name: Unit Tests
+        run: |
+          dotnet test ${{ env.UNIT_TESTS }} \
+            --no-build -c Release \
+            --logger "trx;LogFileName=unit-results.trx" \
+            --results-directory ./test-results
+
+      # Integration tests — use EF InMemory, no real DB needed
+      - name: Integration Tests
+        run: |
+          dotnet test ${{ env.INTEGRATION_TESTS }} \
+            --no-build -c Release \
+            --logger "trx;LogFileName=integration-results.trx" \
+            --results-directory ./test-results
+
+      # Show pass/fail summary in the GitHub PR/commit UI
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always() # run even if tests failed so we see the report
+        with:
+          name: .NET Tests
+          path: './test-results/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      # Publish the web app to a folder for deployment
+      - name: Publish
+        run: |
+          dotnet publish ${{ env.WEB_PROJECT }} \
+            -c Release \
+            -o ${{ env.PUBLISH_DIR }} \
+            --no-restore
+
+      # Pass the publish output to the deploy job
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-publish
+          path: ${{ env.PUBLISH_DIR }}
+          retention-days: 1
+
+  # ----------------------------------------------------------
+  # Job 2: Deploy to Azure App Service
+  # Only runs after build-and-test succeeds.
+  # Uses the "production" environment — you can add a manual
+  # approval gate in GitHub: Settings → Environments → production
+  # ----------------------------------------------------------
+  deploy:
+    name: Deploy to Azure App Service
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    environment: production
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-publish
+          path: ${{ env.PUBLISH_DIR }}
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_API_APP_NAME }}
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: ${{ env.PUBLISH_DIR }}

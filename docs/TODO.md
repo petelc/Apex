@@ -42,7 +42,7 @@
 ### Backend API
 
 - [x] **Remove diagnostic/debug endpoints**
-  Deleted `DiagnosticUserLookupEndpoint`, `DiagnosticGetUsersByRoleEndpoint`, `TestUserLookupEndpoint` — all were `AllowAnonymous()` and exposed user data.
+      Deleted `DiagnosticUserLookupEndpoint`, `DiagnosticGetUsersByRoleEndpoint`, `TestUserLookupEndpoint` — all were `AllowAnonymous()` and exposed user data.
 
 ---
 
@@ -51,17 +51,17 @@
 ### Frontend–Backend Integration
 
 - [x] **Dashboard: Replace mock data with live API**
-  `Dashboard.tsx` is the active route, fully wired to `GET /dashboard/stats`. Was already complete.
+      `Dashboard.tsx` is the active route, fully wired to `GET /dashboard/stats`. Was already complete.
 
 - [x] **Change Analytics page: Wire to real API**
-  All 4 endpoints wired via `changeRequestApi`. Was already complete.
+      All 4 endpoints wired via `changeRequestApi`. Was already complete.
 
 - [x] **User Role Manager**
-  `components/admin/UserRoleManager.tsx` wired to all 3 admin role endpoints. Fixed contract mismatch: `assignRole` was sending `{ role }` but backend expects `{ roleName }`. Deleted unused duplicate `pages/admin/UserRoleManager.tsx`.
+      `components/admin/UserRoleManager.tsx` wired to all 3 admin role endpoints. Fixed contract mismatch: `assignRole` was sending `{ role }` but backend expects `{ roleName }`. Deleted unused duplicate `pages/admin/UserRoleManager.tsx`.
 
 - [ ] **Profile Picture Upload** _(blocked on infrastructure — deferred to Priority 6)_
-  Backend endpoint functional with local filesystem. Azure Blob Storage wiring deferred until Azure infrastructure is provisioned.
-  _Backend: `ApexAPI/src/Apex.API.Web/Endpoints/Users/UploadProfilePictureEndpoint.cs`_
+      Backend endpoint functional with local filesystem. Azure Blob Storage wiring deferred until Azure infrastructure is provisioned.
+      _Backend: `ApexAPI/src/Apex.API.Web/Endpoints/Users/UploadProfilePictureEndpoint.cs`_
 
 ---
 
@@ -106,21 +106,21 @@ The homepage is complete. Key inner pages are built and deploy as static Next.js
 - [x] `/terms` — Terms of service (full, 15 sections)
 - [x] `/blog` — Blog index (category filter, featured post, grid, newsletter CTA) + MDX post pages (author card, related posts). 5 sample posts written.
 - [x] `/docs` — Docs index + MDX doc pages with collapsible sidebar, prev/next nav. 7 pages across 4 sections. Powered by `gray-matter` + `next-mdx-remote` + `@tailwindcss/typography`.
-- [ ] **Dashboard screenshot/mockup** — Hero section has a placeholder grid; replace with a real screenshot or polished mockup
-- [ ] **Demo video** — "Watch Demo" button in Hero links nowhere
-- [ ] **Contact form backend** — Wire form submission to email service
+- [x] **Dashboard screenshot/mockup** — Hero section has a placeholder grid; replace with a real screenshot or polished mockup
+- [x] **Demo video** — "Watch Demo" button in Hero links nowhere
+- [x] **Contact form backend** — Wire form submission to email service
 
 ---
 
 ## Priority 6 — Infrastructure & DevOps
 
-- [ ] **CI/CD pipeline** — GitHub Actions: build, test, publish, deploy to Azure
-- [ ] **Azure resources** — App Service, Azure SQL, Redis, Application Insights, Key Vault, Blob Storage
-- [ ] **Environment configuration** — Staging vs Production appsettings, secrets via Key Vault
-- [ ] **Redis caching** — `IDistributedCache` integration for hot-path queries (user lookups, dashboard stats)
-- [ ] **EF Core migrations strategy** — Document migration workflow for team; current `InitialCreate` migration covers full schema
-- [ ] **Swagger disabled in production** — Confirm `app.Environment.IsDevelopment()` gate is in place
-- [ ] **CORS locked down for production** — Remove `localhost` origins from production CORS policy
+- [x] **CI/CD pipeline** — GitHub Actions: build, test, publish, deploy to Azure
+- [x] **Azure resources** — App Service, Azure SQL, Redis, Application Insights, Key Vault, Blob Storage
+- [x] **Environment configuration** — Staging vs Production appsettings, secrets via Key Vault
+- [x] **Redis caching** — `IDistributedCache` integration for hot-path queries (user lookups, dashboard stats)
+- [x] **EF Core migrations strategy** — Document migration workflow for team; current `InitialCreate` migration covers full schema
+- [x] **Swagger disabled in production** — Confirm `app.Environment.IsDevelopment()` gate is in place
+- [x] **CORS locked down for production** — Remove `localhost` origins from production CORS policy
 
 ---
 

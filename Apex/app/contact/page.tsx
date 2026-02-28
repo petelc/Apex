@@ -56,6 +56,7 @@ export default function ContactPage() {
   })
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -64,10 +65,20 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Simulate submission delay
-    await new Promise((r) => setTimeout(r, 1200))
-    setLoading(false)
-    setSubmitted(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error('server_error')
+      setSubmitted(true)
+    } catch {
+      setError('Something went wrong. Please try again or email us directly at hello@apex.io')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -278,6 +289,12 @@ export default function ContactPage() {
                         placeholder="Tell us about your team, your current challenges, or what you'd like to discuss..."
                       />
                     </div>
+
+                    {error && (
+                      <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        {error}
+                      </div>
+                    )}
 
                     <button
                       type="submit"

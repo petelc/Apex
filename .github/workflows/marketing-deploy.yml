@@ -1,0 +1,72 @@
+# ============================================================
+# Marketing Site — Deploy (Next.js → Vercel)
+# Triggers on pushes to main that touch Apex/**
+#
+# ⚡ EASIER ALTERNATIVE: Connect Vercel to your GitHub repo in
+# the Vercel dashboard (vercel.com → Import Project → GitHub).
+# Vercel auto-deploys on every push to main with zero config —
+# you don't need this workflow at all if you do that.
+#
+# Use this workflow if you want CI-gated deploys (e.g. only deploy
+# after tests pass, or require manual approval).
+#
+# Required GitHub secrets:
+#   VERCEL_TOKEN       — vercel.com → Settings → Tokens → Create
+#   VERCEL_ORG_ID      — vercel.com → Settings → General → "Your ID"
+#   VERCEL_PROJECT_ID  — vercel.com → Project Settings → General → "Project ID"
+# ============================================================
+
+name: Marketing Site — Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Apex/**'
+      - '.github/workflows/marketing-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: Apex/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      # Pull environment variables and project settings from Vercel.
+      # This creates a local .vercel/ config used by subsequent commands.
+      - name: Pull Vercel environment
+        working-directory: Apex
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # Build the Next.js app with Vercel's build system.
+      # Output lands in Apex/.vercel/output/
+      - name: Build
+        working-directory: Apex
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # Deploy the pre-built output — no rebuild on Vercel's side.
+      - name: Deploy
+        working-directory: Apex
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

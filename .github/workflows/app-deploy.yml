@@ -1,0 +1,80 @@
+# ============================================================
+# ApexApp — Build & Deploy (Vite React SPA → Azure Static Web Apps)
+# Triggers on pushes to main that touch ApexApp/**
+#
+# Required GitHub secrets:
+#   AZURE_STATIC_WEB_APPS_TOKEN  — From: Azure Portal → Static Web Apps → Manage deployment token
+#
+# Required GitHub vars (Settings → Variables):
+#   VITE_API_URL  — Production API base URL, e.g. "https://api.apex.io"
+#                   This is injected at build time so Vite bakes it into the bundle.
+# ============================================================
+
+name: App — Build & Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ApexApp/**'
+      - '.github/workflows/app-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to Azure Static Web Apps
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ApexApp/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ApexApp
+        run: npm ci
+
+      # VITE_API_URL must be set at build time — Vite bakes env vars into the bundle.
+      # In production the app calls https://api.apex.io directly (no dev proxy).
+      - name: Build
+        working-directory: ApexApp
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        run: npm run build
+        # Output lands in ApexApp/dist/
+
+      # Deploy the pre-built dist/ folder to Azure Static Web Apps.
+      # skip_app_build: true — we already built above so we can inject env vars.
+      - name: Deploy to Azure Static Web Apps
+        uses: azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: 'upload'
+          app_location: 'ApexApp'      # root of the app source
+          output_location: 'dist'      # relative to app_location — where vite build outputs
+          skip_app_build: true         # we built it ourselves above
+
+  # ----------------------------------------------------------
+  # Close PR preview environments when a PR is merged/closed
+  # Azure Static Web Apps auto-creates preview environments for PRs —
+  # this job cleans them up automatically.
+  # ----------------------------------------------------------
+  close-pr-preview:
+    name: Close PR Preview Environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+
+    steps:
+      - name: Close Pull Request
+        uses: azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_TOKEN }}
+          action: 'close'
+          app_location: 'ApexApp'

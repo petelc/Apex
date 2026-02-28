@@ -18,35 +18,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults()
        .AddLoggerConfigs();
 
-// ✅ CORS Configuration for React App
+// CORS: origins are environment-specific — set in appsettings.Development.json / appsettings.Production.json.
+// The base appsettings.json has no origins, so production never accidentally allows localhost.
+var allowedOrigins = builder.Configuration
+    .GetSection("AllowedOrigins")
+    .Get<string[]>() ?? [];
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
         policy
-            .SetIsOriginAllowed(origin =>
-            {
-                // Allow localhost and any *.localhost subdomain on dev ports
-                var uri = new Uri(origin);
-                return (uri.Host == "localhost" || uri.Host.EndsWith(".localhost"))
-                       && (uri.Port == 3000 || uri.Port == 5173);
-            })
+            .WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
     });
     options.AddPolicy("HangfirePolicy", policy =>
     {
-        policy.SetIsOriginAllowed(origin =>
-        {
-            // Allow localhost on port 5000 with any subdomain
-            var uri = new Uri(origin);
-            return uri.Host.EndsWith(".localhost") && uri.Port == 5000 ||
-                   uri.Host == "localhost" && uri.Port == 5000;
-        })
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
