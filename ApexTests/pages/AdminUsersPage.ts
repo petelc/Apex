@@ -45,8 +45,9 @@ export class AdminUsersPage extends BasePage {
     await dialog.getByLabel(/first name/i).fill(data.firstName);
     await dialog.getByLabel(/last name/i).fill(data.lastName);
     await dialog.getByLabel(/email/i).fill(data.email);
-    // Use exact match to avoid matching "Confirm Password" field in the same dialog.
-    await dialog.getByLabel(/^password$/i).fill(data.password);
+    // Target password inputs by type — both Password and Confirm Password must be filled.
+    await dialog.locator('input[type="password"]').first().fill(data.password);
+    await dialog.locator('input[type="password"]').nth(1).fill(data.password);
   }
 
   async submitCreateUserForm(): Promise<void> {

@@ -26,7 +26,11 @@ export class ChangeRequestDetailPage extends BasePage {
   }
 
   async clickApprove(): Promise<void> {
+    // First click opens the approval dialog (notes are optional).
     await this.page.getByRole('button', { name: /approve/i }).click();
+    // Confirm inside the dialog — approval notes are optional so we can submit immediately.
+    const dialog = this.page.getByRole('dialog');
+    await dialog.getByRole('button', { name: /approve/i }).click();
     await this.page.waitForLoadState('networkidle');
   }
 

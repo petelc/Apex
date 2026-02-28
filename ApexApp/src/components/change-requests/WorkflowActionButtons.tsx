@@ -110,6 +110,7 @@ export const WorkflowActionButtons = ({
           </>
         );
 
+      case 'Submitted':
       case 'UnderReview':
         return (
           <>

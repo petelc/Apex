@@ -11,7 +11,9 @@ export class CreateChangeRequestPage extends BasePage {
   }
 
   async assertOnStep(stepLabel: string): Promise<void> {
-    await expect(this.page.getByText(stepLabel)).toBeVisible();
+    // MUI Stepper renders each label multiple times — target only the active step label.
+    // toContainText handles labels like "Review & Submit" when we pass "Review".
+    await expect(this.page.locator('.MuiStepLabel-label.Mui-active')).toContainText(stepLabel);
   }
 
   // ── Step 1: Basic Information ────────────────────────────────────────────────

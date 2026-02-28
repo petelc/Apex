@@ -15,11 +15,12 @@ export class AdminDepartmentsPage extends BasePage {
   }
 
   async assertDepartmentInTable(name: string): Promise<void> {
-    await expect(this.page.getByText(name)).toBeVisible();
+    await expect(this.page.getByRole('table').getByText(name)).toBeVisible();
   }
 
   async assertDepartmentNotInTable(name: string): Promise<void> {
-    await expect(this.page.getByText(name)).not.toBeVisible();
+    // Scope to table to avoid strict-mode violations from toasts/notifications.
+    await expect(this.page.getByRole('table').getByText(name)).not.toBeVisible();
   }
 
   async clickCreateDepartment(): Promise<void> {
@@ -52,9 +53,8 @@ export class AdminDepartmentsPage extends BasePage {
   }
 
   async confirmDelete(): Promise<void> {
-    // Confirmation dialog
     const dialog = this.page.getByRole('dialog');
     await dialog.getByRole('button', { name: /confirm|delete|yes/i }).click();
-    await this.waitForDataLoad();
+    await this.page.waitForLoadState('networkidle');
   }
 }

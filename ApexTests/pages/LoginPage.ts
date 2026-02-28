@@ -21,6 +21,8 @@ export class LoginPage extends BasePage {
 
   async submit(): Promise<void> {
     await this.page.getByRole('button', { name: 'Sign In' }).click();
+    // Wait for the login API call + redirect to complete before returning.
+    await this.page.waitForLoadState('networkidle');
   }
 
   async login(email: string, password: string): Promise<void> {
