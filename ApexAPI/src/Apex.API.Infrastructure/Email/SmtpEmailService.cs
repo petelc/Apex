@@ -113,7 +113,7 @@ public class SmtpEmailService : IEmailService
             // Auto will negotiate the best option for the server.
             await client.ConnectAsync(smtp.Host, smtp.Port, SecureSocketOptions.StartTlsWhenAvailable, ct);
 
-            if (!string.IsNullOrEmpty(smtp.Username))
+            if (!string.IsNullOrEmpty(smtp.Username) && !string.IsNullOrEmpty(smtp.Password))
                 await client.AuthenticateAsync(smtp.Username, smtp.Password, ct);
 
             await client.SendAsync(message, ct);
